@@ -1,0 +1,8 @@
+def print_hello():
+    print("Hello World")
+    print(5 + 4)
+    name = "João da Silva"
+    print(name)
+
+
+print_hello()
