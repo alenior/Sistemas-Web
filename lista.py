@@ -24,3 +24,16 @@ print("")
 matriz = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
 print(matriz)
 print("")
+
+frutas[1] = "laranja"
+print(frutas)
+
+frutas.insert(1, "banana")
+print(frutas)
+
+frutas.pop(1)
+print(frutas)
+
+frutas.clear()
+print(frutas)
+
