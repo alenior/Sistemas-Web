@@ -1,9 +1,16 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from config import DevelopmentConfig
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:password@localhost/contas_a_pagar'
+app.config.from_object('config.Config')  # Carrega configurações padrão
+app.config.from_pyfile('instance/config.py', silent=True)  # Sobrescreve com configurações específicas do ambiente
 db = SQLAlchemy(app)
+
+@app.route('/')
+def index():
+    return "Bem-vindo ao sistema de controle de contas a pagar!"
+
 
 class Credor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -43,5 +50,6 @@ def get_contas():
     } for conta in contas])
 
 if __name__ == '__main__':
-    db.create_all()
+    with app.app_context():
+        db.create_all() # Isso cria todas as tabelas conforme definidas nos modelos do SQLAlchemy
     app.run(debug=True)
