@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Conta a Pagar{% endblock %}
+
+{% block content %}
+    <h1>Editar Conta a Pagar</h1>
+    <form method="POST" action="{{ url_for('contas_update', id=conta.id) }}">
+        <div class="form-group">
+            <label for="descricao">Descrição:</label>
+            <input type="text" id="descricao" name="descricao" class="form-control" value="{{ conta.descricao }}" required>
+        </div>
+        <div class="form-group">
+            <label for="valor">Valor:</label>
+            <input type="number" id="valor" name="valor" class="form-control" step="0.01" value="{{ conta.valor }}" required>
+        </div>
+        <div class="form-group">
+            <label for="vencimento">Vencimento:</label>
+            <input type="date" id="vencimento" name="vencimento" class="form-control" value="{{ conta.vencimento.strftime('%Y-%m-%d') }}" required>
+        </div>
+        <div class="form-group">
+            <label for="status_conta">Status:</label>
+            <select id="status_conta" name="status_conta" class="form-control" required>
+                <option value="a pagar" {% if conta.status_conta == 'a pagar' %}selected{% endif %}>A Pagar</option>
+                <option value="paga" {% if conta.status_conta == 'paga' %}selected{% endif %}>Paga</option>
+                <option value="em atraso" {% if conta.status_conta == 'em atraso' %}selected{% endif %}>Em Atraso</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="credor_id">Credor:</label>
+            <select id="credor_id" name="credor_id" class="form-control" required>
+                {% for credor in credores %}
+                    <option value="{{ credor.id }}" {% if credor.id == conta.credor_id %}selected{% endif %}>{{ credor.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{{ url_for('contas_list') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+{% endblock %}

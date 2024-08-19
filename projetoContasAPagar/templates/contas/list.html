@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Contas a Pagar{% endblock %}
+
+{% block content %}
+    <h1>Contas a Pagar</h1>
+    <a href="{{ url_for('contas_create') }}" class="btn btn-primary mb-3">Adicionar Conta</a>
+    
+    <!-- Tabela de contas -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+                <th>Credor</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for conta in contas %}
+                <tr>
+                    <td>{{ conta.id }}</td>
+                    <td>{{ conta.descricao }}</td>
+                    <td>R$ {{ conta.valor }}</td>
+                    <td>{{ conta.vencimento.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ conta.status_conta }}</td>
+                    <td>{{ conta.credor.nome }}</td>
+                    <td>
+                        <a href="{{ url_for('contas_update', id=conta.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{{ url_for('contas_delete', id=conta.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta conta?');">Excluir</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
