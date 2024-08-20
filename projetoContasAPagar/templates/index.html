@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Contas a Pagar</title>
+    <link rel="stylesheet" href="/projetoContasAPagar/static/style.css">
+    <link rel="icon" href="/projetoContasAPagar/static/imagens/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Início</a></li>
+                <li><a href="{{ url_for('get_creditors') }}">Credores</a></li>
+                <li><a href="{{ url_for('get_bills') }}">Contas a Pagar</a></li>
+                <li><a href="{{ url_for('get_bills_by_period') }}">Relatório de Contas</a></li>
+                <li><a href="{{ url_for('get_creditor_bills') }}">Contas por Credor</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Bem-vindo ao Sistema de Controle de Contas a Pagar</h1>
+        <p>Este sistema permite gerenciar suas contas a pagar e credores de forma simples e eficiente.</p>
+    </main>
+</body>
+</html>
