@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -9,48 +9,66 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Modelos do banco de dados (exemplos)
+# Modelos do banco de dados
 class Credor(db.Model):
-    __tablename__ = 'credores'
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), nullable=False)
-    # Outros campos...
+    __tablename__ = 'credor'  # Nome da tabela no banco de dados
+    
+    id = db.Column(db.Integer, primary_key=True)  # Coluna ID
+    nome = db.Column(db.String(100), nullable=False)  # Coluna Nome
+    cnpj = db.Column(db.String(18), nullable=False)
+    telefone = db.Column(db.String(15), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    endereco = db.Column(db.String(255), nullable=False)
+    contas = db.relationship('ContaAPagar', backref='credor_relacionado', lazy=True)
+
+    def __repr__(self):
+        return f'<Credor {self.nome}>'
 
 class ContaAPagar(db.Model):
-    __tablename__ = 'contas_a_pagar'
+    __tablename__ = 'conta_a_pagar'
     id = db.Column(db.Integer, primary_key=True)
     descricao = db.Column(db.String(200), nullable=False)
     valor = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), nullable=False)
-    credor_id = db.Column(db.Integer, db.ForeignKey('credores.id'), nullable=False)
-    credor = db.relationship('Credor', backref=db.backref('contas', lazy=True))
-    # Outros campos...
+    status_conta = db.Column(db.String(20), nullable=False)
+    credor_id = db.Column(db.Integer, db.ForeignKey('credor.id'), nullable=False)
+    credor = db.relationship('Credor', backref=db.backref('contas_relacionadas', lazy=True))
 
 # Rota da página inicial
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Rotas para os recursos existentes
 @app.route('/credores')
 def get_creditors():
-    # Código para listar credores
-    pass
+    credores = Credor.query.all()
+    return render_template('creditors.html', credores=credores)
 
 @app.route('/contas')
 def get_bills():
-    # Código para listar contas a pagar
-    pass
+    contas = ContaAPagar.query.all()
+    return render_template('bills.html', contas=contas)
 
-@app.route('/relatorio/contas-por-periodo')
+# Rota para listar contas por período
+@app.route('/relatorio/contas-por-periodo', methods=['GET', 'POST'])
 def get_bills_by_period():
-    # Código para listar contas em um período específico
-    pass
+    if request.method == 'POST':
+        # Supor que você receba as datas no formato 'YYYY-MM-DD'
+        data_inicio = request.form['data_inicio']
+        data_fim = request.form['data_fim']
+        contas = ContaAPagar.query.filter(ContaAPagar.data_pagamento.between(data_inicio, data_fim)).all()
+        return render_template('bills_by_period.html', contas=contas, data_inicio=data_inicio, data_fim=data_fim)
+    return render_template('bills_by_period.html')
 
-@app.route('/relatorio/contas-por-credor')
+# Rota para listar contas por credor
+@app.route('/relatorio/contas-por-credor', methods=['GET', 'POST'])
 def get_creditor_bills():
-    # Código para listar contas por credor e status
-    pass
+    if request.method == 'POST':
+        credor_id = request.form['credor_id']
+        contas = ContaAPagar.query.filter_by(credor_id=credor_id).all()
+        credor = Credor.query.get(credor_id)
+        return render_template('creditor_bills.html', contas=contas, credor=credor)
+    credores = Credor.query.all()
+    return render_template('creditor_bills.html', credores=credores)
 
 if __name__ == '__main__':
     with app.app_context():

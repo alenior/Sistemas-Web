@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projeto Contas a Pagar</title>
-    <!-- Correção no caminho do CSS -->
+    <title>Contas a Pagar - Projeto Contas a Pagar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Correção no caminho do favicon -->
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
 </head>
 <body>
@@ -22,8 +20,12 @@
         </nav>
     </header>
     <main>
-        <h1>Bem-vindo ao Sistema de Controle de Contas a Pagar</h1>
-        <p>Este sistema permite gerenciar suas contas a pagar e credores de forma simples e eficiente.</p>
+        <h1>Lista de Contas a Pagar</h1>
+        <ul>
+            {% for conta in contas %}
+                <li>{{ conta.descricao }} - R$ {{ conta.valor }} - {{ conta.status }}</li>
+            {% endfor %}
+        </ul>
     </main>
 </body>
 </html>

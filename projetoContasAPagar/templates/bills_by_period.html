@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Contas por Período</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Início</a></li>
+                <li><a href="{{ url_for('get_creditors') }}">Credores</a></li>
+                <li><a href="{{ url_for('get_bills') }}">Contas a Pagar</a></li>
+                <li><a href="{{ url_for('get_bills_by_period') }}">Relatório de Contas</a></li>
+                <li><a href="{{ url_for('get_creditor_bills') }}">Contas por Credor</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Relatório de Contas por Período</h1>
+        <form method="GET" action="{{ url_for('get_bills_by_period') }}">
+            <label for="start_date">Data Inicial:</label>
+            <input type="date" id="start_date" name="start_date" required>
+            <label for="end_date">Data Final:</label>
+            <input type="date" id="end_date" name="end_date" required>
+            <button type="submit">Filtrar</button>
+        </form>
+
+        <h2>Contas no Período Selecionado</h2>
+        <table>
+            <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Credor</th>
+            </tr>
+            {% for conta in contas %}
+            <tr>
+                <td>{{ conta.descricao }}</td>
+                <td>{{ conta.valor }}</td>
+                <td>{{ conta.status }}</td>
+                <td>{{ conta.credor.nome }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+</body>
+</html>

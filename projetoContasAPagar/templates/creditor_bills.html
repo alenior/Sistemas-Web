@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contas por Credor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Início</a></li>
+                <li><a href="{{ url_for('get_creditors') }}">Credores</a></li>
+                <li><a href="{{ url_for('get_bills') }}">Contas a Pagar</a></li>
+                <li><a href="{{ url_for('get_bills_by_period') }}">Relatório de Contas</a></li>
+                <li><a href="{{ url_for('get_creditor_bills') }}">Contas por Credor</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Contas por Credor</h1>
+        <form method="GET" action="{{ url_for('get_creditor_bills') }}">
+            <label for="creditor_id">Selecione o Credor:</label>
+            <select id="creditor_id" name="creditor_id" required>
+                {% for credor in credores %}
+                <option value="{{ credor.id }}">{{ credor.nome }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Filtrar</button>
+        </form>
+
+        <h2>Contas do Credor Selecionado</h2>
+        <table>
+            <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Status</th>
+            </tr>
+            {% for conta in contas %}
+            <tr>
+                <td>{{ conta.descricao }}</td>
+                <td>{{ conta.valor }}</td>
+                <td>{{ conta.status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+</body>
+</html>
