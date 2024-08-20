@@ -29,9 +29,13 @@ class ContaAPagar(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     descricao = db.Column(db.String(200), nullable=False)
     valor = db.Column(db.Float, nullable=False)
+    data_vencimento = db.Column(db.Date, nullable=False)  # A data de vencimento foi adicionada
     status_conta = db.Column(db.String(20), nullable=False)
     credor_id = db.Column(db.Integer, db.ForeignKey('credor.id'), nullable=False)
     credor = db.relationship('Credor', backref=db.backref('contas_relacionadas', lazy=True))
+
+    def __repr__(self):
+        return f'<ContaAPagar {self.descricao}>'
 
 # Rota da página inicial
 @app.route('/')
@@ -49,26 +53,26 @@ def get_bills():
     return render_template('bills.html', contas=contas)
 
 # Rota para listar contas por período
-@app.route('/relatorio/contas-por-periodo', methods=['GET', 'POST'])
+@app.route('/contas-por-periodo', methods=['GET', 'POST'])
 def get_bills_by_period():
     if request.method == 'POST':
         # Supor que você receba as datas no formato 'YYYY-MM-DD'
         data_inicio = request.form['data_inicio']
         data_fim = request.form['data_fim']
-        contas = ContaAPagar.query.filter(ContaAPagar.data_pagamento.between(data_inicio, data_fim)).all()
+        contas = ContaAPagar.query.filter(ContaAPagar.data_vencimento.between(data_inicio, data_fim)).all()
         return render_template('bills_by_period.html', contas=contas, data_inicio=data_inicio, data_fim=data_fim)
     return render_template('bills_by_period.html')
 
 # Rota para listar contas por credor
-@app.route('/relatorio/contas-por-credor', methods=['GET', 'POST'])
-def get_creditor_bills():
+@app.route('/contas-por-credor', methods=['GET', 'POST'])
+def contas_por_credor():
     if request.method == 'POST':
         credor_id = request.form['credor_id']
         contas = ContaAPagar.query.filter_by(credor_id=credor_id).all()
         credor = Credor.query.get(credor_id)
-        return render_template('creditor_bills.html', contas=contas, credor=credor)
+        return render_template('contas_por_credor.html', contas=contas, credor=credor)
     credores = Credor.query.all()
-    return render_template('creditor_bills.html', credores=credores)
+    return render_template('contas_por_credor.html', credores=credores)
 
 if __name__ == '__main__':
     with app.app_context():
