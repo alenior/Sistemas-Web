@@ -14,37 +14,47 @@
                 <li><a href="{{ url_for('index') }}">Início</a></li>
                 <li><a href="{{ url_for('get_creditors') }}">Credores</a></li>
                 <li><a href="{{ url_for('get_bills') }}">Contas a Pagar</a></li>
-                <li><a href="{{ url_for('get_bills_by_period') }}">Relatório de Contas</a></li>
-                <li><a href="{{ url_for('get_creditor_bills') }}">Contas por Credor</a></li>
+                <li><a href="{{ url_for('bills_by_period') }}">Relatório de Contas</a></li>
+                <li><a href="{{ url_for('contas_por_credor') }}">Contas por Credor</a></li>
             </ul>
         </nav>
     </header>
     <main>
         <h1>Relatório de Contas por Período</h1>
-        <form method="GET" action="{{ url_for('get_bills_by_period') }}">
-            <label for="start_date">Data Inicial:</label>
-            <input type="date" id="start_date" name="start_date" required>
-            <label for="end_date">Data Final:</label>
-            <input type="date" id="end_date" name="end_date" required>
+        <form method="POST" action="{{ url_for('bills_by_period') }}">
+            <label for="data_inicio">Data Início:</label>
+            <input type="date" id="data_inicio" name="data_inicio" required>
+
+            <label for="data_fim">Data Fim:</label>
+            <input type="date" id="data_fim" name="data_fim" required>
+            
             <button type="submit">Filtrar</button>
         </form>
 
         <h2>Contas no Período Selecionado</h2>
         <table>
-            <tr>
-                <th>Descrição</th>
-                <th>Valor</th>
-                <th>Status</th>
-                <th>Credor</th>
-            </tr>
-            {% for conta in contas %}
-            <tr>
-                <td>{{ conta.descricao }}</td>
-                <td>{{ conta.valor }}</td>
-                <td>{{ conta.status }}</td>
-                <td>{{ conta.credor.nome }}</td>
-            </tr>
-            {% endfor %}
+            <thead>
+        <tr>
+            <th>ID</th>
+            <th>Descrição</th>
+            <th>Valor</th>
+            <th>Data de Vencimento</th>
+            <th>Status</th>
+            <th>Credor</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for conta in contas %}
+        <tr>
+            <td>{{ conta.id }}</td>
+            <td>{{ conta.descricao }}</td>
+            <td>{{ conta.valor }}</td>
+            <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
+            <td>{{ conta.get_status_display() }}</td>
+            <td>{{ conta.credor.nome }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
         </table>
     </main>
 </body>

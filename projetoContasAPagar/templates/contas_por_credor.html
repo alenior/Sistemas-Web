@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
 </head>
+
 <body>
     <header>
         <nav>
@@ -14,16 +16,18 @@
                 <li><a href="{{ url_for('index') }}">Início</a></li>
                 <li><a href="{{ url_for('get_creditors') }}">Credores</a></li>
                 <li><a href="{{ url_for('get_bills') }}">Contas a Pagar</a></li>
-                <li><a href="{{ url_for('get_bills_by_period') }}">Relatório de Contas</a></li>
+                <li><a href="{{ url_for('bills_by_period') }}">Relatório de Contas</a></li>
                 <li><a href="{{ url_for('contas_por_credor') }}">Contas por Credor</a></li>
             </ul>
         </nav>
     </header>
     <main>
         <h1>Contas por Credor</h1>
-        <form action="/contas-por-credor" method="post">
-            <label for="credor">Selecione um Credor:</label>
-            <select name="credor_id" id="credor">
+
+        <form method="post" action="{{ url_for('contas_por_credor') }}">
+            <label for="credor_id">Selecione o Credor:</label>
+            <select id="credor_id" name="credor_id">
+                <option value="">Selecione um credor</option>
                 {% for credor in credores %}
                 <option value="{{ credor.id }}">{{ credor.nome }}</option>
                 {% endfor %}
@@ -40,6 +44,7 @@
                     <th>Valor</th>
                     <th>Data de Vencimento</th>
                     <th>Status</th>
+                    <th>Credor</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,16 +52,17 @@
                 <tr>
                     <td>{{ conta.id }}</td>
                     <td>{{ conta.descricao }}</td>
-                    <td>{{ conta.valor }}</td>
-                    <td>{{ conta.data_vencimento }}</td>
-                    <td>{{ conta.status_conta }}</td>
+                    <td>R$ {{ '{:,.2f}'.format(conta.valor).replace('.', ',') }}</td> <!-- Formatação do valor -->
+                    <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ conta.get_status_display() }}</td>
+                    <td>{{ conta.credor.nome }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        {% else %}
-        <p>Nenhuma conta encontrada para o credor selecionado.</p>
         {% endif %}
+
     </main>
 </body>
+
 </html>
