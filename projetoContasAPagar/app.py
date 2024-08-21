@@ -4,6 +4,9 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+# Defina a chave secreta para sua aplicação
+app.config['SECRET_KEY'] = 'minha_chave_secreta'
+
 # Configuração do banco de dados
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/contas_a_pagar'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -104,7 +107,7 @@ def add_credor():
         db.session.add(novo_credor)
         db.session.commit()
         flash('Credor adicionado com sucesso!', 'success')
-        return redirect(url_for('creditors'))  # Redireciona para a página de listagem de credores
+        return redirect(url_for('get_creditors'))  # Redireciona para a página de listagem de credores
     return render_template('add_credor.html')
 
 # Alterar um credor existente
@@ -117,30 +120,33 @@ def edit_credor(id):
         credor.telefone = request.form.get('telefone')
         credor.email = request.form.get('email')
         credor.endereco = request.form.get('endereco')
+
         db.session.commit()
         flash('Credor alterado com sucesso!', 'success')
-        return redirect(url_for('creditors'))  # Redireciona para a página de listagem de credores
+        return redirect(url_for('get_creditors'))  # Redireciona para a página de listagem de credores
     return render_template('edit_credor.html', credor=credor)
 
 # Excluir um credor
 @app.route('/delete_credor/<int:id>', methods=['POST'])
-def delete_credor(id): # def delete_creditor(credor_id):
+def delete_credor(id):
     credor = Credor.query.get_or_404(id)
     db.session.delete(credor)
     db.session.commit()
     flash('Credor excluído com sucesso!', 'success')
-    return redirect(url_for('creditors')) # Redireciona para a página de listagem de credores
+    return redirect(url_for('get_creditors')) # Redireciona para a página de listagem de credores
 
 # Incluir uma nova conta
 @app.route('/add_conta', methods=['GET', 'POST'])
 def add_conta():
-    credores = Credor.query.all()
+    credores = Credor.query.all() # Antes do último return?
     if request.method == 'POST':
         descricao = request.form.get('descricao')
-        valor = float(request.form.get('valor'))
+        valor = request.form.get('valor').replace(',', '.')  # Substituir vírgula por ponto
+        valor = float(valor)  # Converter para float após substituir a vírgula
         data_vencimento = request.form.get('data_vencimento')
         status_conta = request.form.get('status_conta')
         credor_id = request.form.get('credor_id')
+
         nova_conta = ContaAPagar(
             descricao=descricao,
             valor=valor,
@@ -148,27 +154,40 @@ def add_conta():
             status_conta=status_conta,
             credor_id=credor_id
         )
+
         db.session.add(nova_conta)
         db.session.commit()
         flash('Conta adicionada com sucesso!', 'success')
-        return redirect(url_for('bills'))  # Redireciona para a página de listagem de contas
-    return render_template('add_conta.html', credores=credores)
+        return redirect(url_for('get_bills'))  # Redireciona para a página de listagem de contas
+    
+    return render_template('add_conta.html', credores=credores, STATUS_MAP=STATUS_MAP)
 
 # Alterar uma conta existente
 @app.route('/edit_conta/<int:id>', methods=['GET', 'POST'])
 def edit_conta(id):
     conta = ContaAPagar.query.get_or_404(id)
     credores = Credor.query.all()
+
     if request.method == 'POST':
         conta.descricao = request.form.get('descricao')
-        conta.valor = float(request.form.get('valor'))
+
+        # Converte o valor substituindo vírgula por ponto
+        valor_str = request.form.get('valor').replace(',', '.')
+        try:
+            conta.valor = float(valor_str)
+        except ValueError:
+            flash('O valor fornecido não é válido.', 'error')
+            return render_template('edit_conta.html', conta=conta, credores=credores)
+
         conta.data_vencimento = request.form.get('data_vencimento')
         conta.status_conta = request.form.get('status_conta')
         conta.credor_id = request.form.get('credor_id')
+
         db.session.commit()
         flash('Conta alterada com sucesso!', 'success')
-        return redirect(url_for('bills'))  # Redireciona para a página de listagem de contas
-    return render_template('edit_conta.html', conta=conta, credores=credores)
+        return redirect(url_for('get_bills'))  # Redireciona para a página de listagem de contas
+    
+    return render_template('edit_conta.html', conta=conta, credores=credores, STATUS_MAP=STATUS_MAP)
 
 # Excluir uma conta
 @app.route('/delete_conta/<int:id>', methods=['POST'])

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <!-- Correção no caminho do favicon -->
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
 </head>
+
 <body>
     <header>
         <nav>
@@ -45,7 +47,12 @@
                     <td>{{ credor.endereco }}</td>
                     <td>
                         <a href="{{ url_for('edit_credor', id=credor.id) }}" class="btn btn-warning">Editar</a>
-                        <a href="{{ url_for('delete_credor', id=credor.id) }}" class="btn btn-danger">Excluir</a>
+                        <!-- Formulário para Excluir -->
+                        <form action="{{ url_for('delete_credor', id=credor.id) }}" method="POST"
+                            style="display:inline;"
+                            onsubmit="return confirm('Tem certeza que deseja excluir este credor?');">
+                            <button type="submit">Excluir</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
@@ -53,4 +60,5 @@
         </table>
     </main>
 </body>
+
 </html>

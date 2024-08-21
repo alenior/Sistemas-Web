@@ -39,7 +39,7 @@
                 {% for conta in contas %}
                 <tr>
                     <td>{{ conta.descricao }}</td>
-                    <td>R$ {{ "%.2f"|format(conta.valor) }}</td>
+                    <td>R$ {{ "{:,.2f}".format(conta.valor).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
                     <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
                     <td>{{ conta.get_status_display() }}</td>
                     <td>{{ conta.credor_relacionado.nome }}</td>

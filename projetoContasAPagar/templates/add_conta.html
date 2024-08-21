@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar Conta</title>
+     <!-- Correção no caminho do CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Correção no caminho do favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
 </head>
 <body>
     <h1>Adicionar Conta</h1>
@@ -19,8 +23,9 @@
         
         <label for="status_conta">Status:</label>
         <select id="status_conta" name="status_conta" required>
-            <option value="Pendente">Pendente</option>
-            <option value="Pago">Pago</option>
+            {% for key, value in STATUS_MAP.items() %}
+                <option value="{{ key }}">{{ value }}</option>
+            {% endfor %}
         </select>
         
         <label for="credor_id">Credor:</label>
