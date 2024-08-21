@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contas a Pagar - Projeto Contas a Pagar</title>
+    <title>Lista de Contas a Pagar</title>
+    <!-- Correção no caminho do CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Correção no caminho do favicon -->
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
 </head>
 <body>
@@ -21,11 +23,34 @@
     </header>
     <main>
         <h1>Lista de Contas a Pagar</h1>
-        <ul>
-            {% for conta in contas %}
-                <li>{{ conta.descricao }} - R$ {{ conta.valor }} - {{ conta.status }}</li>
-            {% endfor %}
-        </ul>
+        <a href="{{ url_for('add_conta') }}" class="btn btn-primary">Adicionar Nova Conta</a>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Data de Vencimento</th>
+                    <th>Status</th>
+                    <th>Credor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conta in contas %}
+                <tr>
+                    <td>{{ conta.descricao }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor) }}</td>
+                    <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ conta.get_status_display() }}</td>
+                    <td>{{ conta.credor_relacionado.nome }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_conta', id=conta.id) }}" class="btn btn-warning">Editar</a>
+                        <a href="{{ url_for('delete_conta', id=conta.id) }}" class="btn btn-danger">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </main>
 </body>
 </html>
