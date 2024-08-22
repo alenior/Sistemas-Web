@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
 </head>
+
 <body>
     <header>
         <nav>
@@ -27,14 +29,15 @@
 
             <label for="data_fim">Data Fim:</label>
             <input type="date" id="data_fim" name="data_fim" value="{{ data_fim }}" required>
-            
+
             <label for="credor_id">Credor:</label>
             <select id="credor_id" name="credor_id">
                 <option value="">Todos</option>
                 {% for credor in credores %}
-                    <option value="{{ credor.id }}" {% if credor.id|string == request.form.get('credor_id') %}selected{% endif %}>
-                        {{ credor.nome }}
-                    </option>
+                <option value="{{ credor.id }}" {% if credor.id|string==request.form.get('credor_id') %}selected{% endif
+                    %}>
+                    {{ credor.nome }}
+                </option>
                 {% endfor %}
             </select>
 
@@ -42,40 +45,44 @@
             <select id="status_conta" name="status_conta">
                 <option value="">Todos</option>
                 {% for status_key, status_value in STATUS_MAP.items() %}
-                    <option value="{{ status_key }}" {% if status_key == request.form.get('status_conta') %}selected{% endif %}>
-                        {{ status_value }}
-                    </option>
+                <option value="{{ status_key }}" {% if status_key==request.form.get('status_conta') %}selected{% endif
+                    %}>
+                    {{ status_value }}
+                </option>
                 {% endfor %}
             </select>
-            
-            <button type="submit">Filtrar</button>
+
+            <button type="submit">Filtrar</button><br>
+            <a href="{{ url_for('export_bills_by_period_pdf', data_inicio=data_inicio, data_fim=data_fim, credor_id=credor_id, status_conta=status_conta) }}"
+                class="btn">Exportar PDF</a>
         </form>
 
         <h2>Contas no Período Selecionado</h2>
         <table>
             <thead>
-        <tr>
-            <th>ID</th>
-            <th>Descrição</th>
-            <th>Valor</th>
-            <th>Data de Vencimento</th>
-            <th>Status</th>
-            <th>Credor</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for conta in contas %}
-        <tr>
-            <td>{{ conta.id }}</td>
-            <td>{{ conta.descricao }}</td>
-            <td>R$ {{ "{:.2f}".format(conta.valor) | replace('.', ',') }}</td>
-            <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
-            <td>{{ STATUS_MAP[conta.status_conta] }}</td>
-            <td>{{ conta.credor_relacionado.nome }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+                <tr>
+                    <th>ID</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Data de Vencimento</th>
+                    <th>Status</th>
+                    <th>Credor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conta in contas %}
+                <tr>
+                    <td>{{ conta.id }}</td>
+                    <td>{{ conta.descricao }}</td>
+                    <td>R$ {{ "{:.2f}".format(conta.valor) | replace('.', ',') }}</td>
+                    <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ STATUS_MAP[conta.status_conta] }}</td>
+                    <td>{{ conta.credor_relacionado.nome }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </main>
 </body>
+
 </html>

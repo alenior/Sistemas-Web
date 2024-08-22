@@ -1,8 +1,15 @@
-from flask import Flask, render_template, url_for, request, redirect, flash, send_file
+from flask import Flask, render_template, url_for, request, redirect, flash, send_file, make_response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
 from weasyprint import HTML
 import io
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import pdfkit
+
+path_wkhtmltopdf = '/usr/bin/wkhtmltopdf'  # Caminho para o executável do wkhtmltopdf
+config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
 
 # Importar a instância de db e migrate do pacote
 from projetoContasAPagar import create_app, db
@@ -19,6 +26,13 @@ STATUS_MAP = {
     'a_vencer': 'A VENCER',
     'vencido': 'VENCIDO'
 }
+
+def format_currency(value):
+    """Formata um valor como moeda (R$)."""
+    return f'R$ {value:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+# Registrar o filtro no Jinja2
+app.jinja_env.filters['format_currency'] = format_currency
 
 # Rota da página inicial
 @app.route('/')
@@ -47,6 +61,19 @@ def export_creditors_pdf():
 def get_bills():
     contas = ContaAPagar.query.all()
     return render_template('bills.html', contas=contas)
+
+@app.route('/export-bills-pdf')
+def export_bills_pdf():
+    contas = ContaAPagar.query.all()  # Obtenha a lista de contas a pagar
+
+    # Renderize o template HTML para o PDF
+    rendered = render_template('bills_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
+
+    # Crie o PDF a partir do HTML
+    pdf = HTML(string=rendered).write_pdf()
+
+    # Envie o PDF para o usuário
+    return send_file(io.BytesIO(pdf), as_attachment=True, download_name='contas_a_pagar.pdf')
 
 @app.route('/contas-por-periodo', methods=['GET', 'POST'])
 def bills_by_period():
@@ -95,6 +122,33 @@ def bills_by_period():
         STATUS_MAP=STATUS_MAP  # Adiciona o STATUS_MAP ao contexto do template
     )
 
+@app.route('/exportar_contas_por_periodo_pdf', methods=['GET'])
+def export_bills_by_period_pdf():
+    # Ajuste a consulta conforme necessário para filtrar as contas por período
+    data_inicio = request.args.get('data_inicio')
+    data_fim = request.args.get('data_fim')
+    contas_query = db.session.query(ContaAPagar).filter(ContaAPagar.data_vencimento.between(data_inicio, data_fim))
+
+    # Inclua filtros adicionais de credor e status se aplicável
+    credor_id = request.args.get('credor_id')
+    status_conta = request.args.get('status_conta')
+
+    if credor_id:
+        contas_query = contas_query.filter_by(credor_id=credor_id)
+    if status_conta:
+        contas_query = contas_query.filter_by(status_conta=status_conta)
+
+    contas = contas_query.all()
+
+    # Renderizar o template para o PDF
+    rendered = render_template('bills_by_period_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
+    
+    # Gerar o PDF usando o HTML renderizado
+    pdf = pdfkit.from_string(rendered, False, configuration=config)
+
+    # Retornar o PDF como arquivo para download
+    return send_file(io.BytesIO(pdf), download_name='relatorio_contas_por_periodo.pdf', as_attachment=True)
+
 @app.route('/contas-por-credor', methods=['GET', 'POST'])
 def contas_por_credor():
     if request.method == 'POST':
@@ -105,6 +159,30 @@ def contas_por_credor():
     
     credores = Credor.query.all() # Carregar a lista de credores para o formulário
     return render_template('contas_por_credor.html', contas=[], credores=credores)
+
+@app.route('/exportar_contas_por_credor_pdf', methods=['GET'])
+def export_bills_by_creditor_pdf():
+    credor_id = request.args.get('credor_id')
+    # Inclua filtros adicionais de status se aplicável
+    status_conta = request.args.get('status_conta')
+
+    # Ajuste a consulta para filtrar as contas por credor
+    contas_query = db.session.query(ContaAPagar).join(Credor).filter(ContaAPagar.credor_id == credor_id)
+
+    if status_conta:
+        contas_query = contas_query.filter_by(status_conta=status_conta)
+
+    contas = contas_query.all()
+
+    # Renderizar o template para o PDF
+    rendered = render_template('bills_by_creditor_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
+    
+    # Gerar o PDF usando o HTML renderizado
+    pdf = pdfkit.from_string(rendered, False, configuration=config)
+
+    # Retornar o PDF como arquivo para download
+    return send_file(io.BytesIO(pdf), download_name='relatorio_contas_por_credor.pdf', as_attachment=True)
+
 
 @app.route('/add_credor', methods=['GET', 'POST'])
 def add_credor():
