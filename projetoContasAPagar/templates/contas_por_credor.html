@@ -55,7 +55,7 @@
                     <td>R$ {{ '{:,.2f}'.format(conta.valor).replace('.', ',') }}</td> <!-- Formatação do valor -->
                     <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
                     <td>{{ conta.get_status_display() }}</td>
-                    <td>{{ conta.credor.nome }}</td>
+                    <td>{{ conta.credor_relacionado.nome }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

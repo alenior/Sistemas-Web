@@ -1,53 +1,24 @@
-from flask import Flask, render_template, url_for, request, redirect, flash
+from flask import Flask, render_template, url_for, request, redirect, flash, send_file
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, date
+from weasyprint import HTML
+import io
 
-app = Flask(__name__)
+# Importar a instância de db e migrate do pacote
+from projetoContasAPagar import create_app, db
+from projetoContasAPagar.models import ContaAPagar, Credor  # Certifique-se de que este caminho está correto
+
+app = create_app()
 
 # Defina a chave secreta para sua aplicação
 app.config['SECRET_KEY'] = 'minha_chave_secreta'
 
-# Configuração do banco de dados
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/contas_a_pagar'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-
 # Modelos do banco de dados
-class Credor(db.Model):
-    __tablename__ = 'credor'  # Nome da tabela no banco de dados
-    id = db.Column(db.Integer, primary_key=True)  # Coluna ID
-    nome = db.Column(db.String(100), nullable=False)  # Coluna Nome
-    cnpj = db.Column(db.String(18), nullable=False)
-    telefone = db.Column(db.String(15), nullable=False)
-    email = db.Column(db.String(255), nullable=False)
-    endereco = db.Column(db.String(255), nullable=False)
-    contas = db.relationship('ContaAPagar', back_populates='credor_relacionado', lazy=True)
-
-    def __repr__(self):
-        return f'<Credor {self.nome}>'
-
 STATUS_MAP = {
     'pago': 'PAGO',
     'a_vencer': 'A VENCER',
     'vencido': 'VENCIDO'
 }
-
-class ContaAPagar(db.Model):
-    __tablename__ = 'conta_a_pagar'
-    id = db.Column(db.Integer, primary_key=True)
-    descricao = db.Column(db.String(200), nullable=False)
-    valor = db.Column(db.Float, nullable=False)
-    data_vencimento = db.Column(db.Date, nullable=False)  # A data de vencimento foi adicionada
-    status_conta = db.Column(db.String(20), nullable=False)
-    credor_id = db.Column(db.Integer, db.ForeignKey('credor.id'), nullable=False)
-    credor_relacionado = db.relationship('Credor', back_populates='contas', lazy=True)
-
-    def get_status_display(self):
-        return STATUS_MAP.get(self.status_conta, 'Desconhecido')
-
-    def __repr__(self):
-        return f'<ContaAPagar {self.descricao}>'
 
 # Rota da página inicial
 @app.route('/')
@@ -59,34 +30,75 @@ def get_creditors():
     credores = Credor.query.all()
     return render_template('creditors.html', credores=credores)
 
+@app.route('/export-creditors-pdf')
+def export_creditors_pdf():
+    credores = Credor.query.all()  # Obtenha a lista de credores
+
+    # Renderize o template HTML para o PDF
+    rendered = render_template('creditors_pdf.html', credores=credores)
+
+    # Crie o PDF a partir do HTML
+    pdf = HTML(string=rendered).write_pdf()
+
+    # Envie o PDF para o usuário
+    return send_file(io.BytesIO(pdf), download_name='credores.pdf', as_attachment=True)
+
 @app.route('/contas')
 def get_bills():
     contas = ContaAPagar.query.all()
     return render_template('bills.html', contas=contas)
 
-# Rota para listar contas por período
 @app.route('/contas-por-periodo', methods=['GET', 'POST'])
 def bills_by_period():
     contas = []
+
+    # Se for um GET, definimos as datas padrão como hoje
+    data_inicio = date.today().strftime('%Y-%m-%d')
+    data_fim = date.today().strftime('%Y-%m-%d')
+    credor_id = request.args.get('credor_id', None)
+    status_conta = request.args.get('status_conta', None)
 
     if request.method == 'POST':
         # Supor que você receba as datas no formato 'YYYY-MM-DD'
         data_inicio = request.form.get('data_inicio')
         data_fim = request.form.get('data_fim')
+        credor_id = request.form.get('credor_id')
+        status_conta = request.form.get('status_conta')
+
         if data_inicio and data_fim:
         # Converter as datas para o formato necessário
             data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d').date()
             data_fim = datetime.strptime(data_fim, '%Y-%m-%d').date()
             # Consulta ao banco de dados filtrando pelo período
-            contas = ContaAPagar.query.filter(ContaAPagar.data_vencimento >= data_inicio,
-                                          ContaAPagar.data_vencimento <= data_fim).all()
-    return render_template('bills_by_period.html', contas=contas)
+            contas = ContaAPagar.query.filter(
+                ContaAPagar.data_vencimento.between(data_inicio, data_fim)
+            )
 
-# Rota para listar contas por credor
+            if credor_id:
+                contas = contas.filter_by(credor_id=credor_id)
+            
+            if status_conta:
+                contas = contas.filter_by(status_conta=status_conta)
+
+            contas = contas.options(db.joinedload(ContaAPagar.credor_relacionado)).all()
+
+    credores = Credor.query.all()
+    statuses = STATUS_MAP.keys()
+
+    return render_template(
+        'bills_by_period.html', 
+        contas=contas, 
+        data_inicio=data_inicio, 
+        data_fim=data_fim, 
+        credores=credores,
+        statuses=statuses,
+        STATUS_MAP=STATUS_MAP  # Adiciona o STATUS_MAP ao contexto do template
+    )
+
 @app.route('/contas-por-credor', methods=['GET', 'POST'])
 def contas_por_credor():
     if request.method == 'POST':
-        credor_id = request.form.get('credor_id') # Correção aqui
+        credor_id = request.form.get('credor_id')
         contas = ContaAPagar.query.filter_by(credor_id=credor_id).all()
         credores = Credor.query.all() # Carregar a lista de credores para o formulário
         return render_template('contas_por_credor.html', contas=contas, credores=credores)
@@ -94,7 +106,6 @@ def contas_por_credor():
     credores = Credor.query.all() # Carregar a lista de credores para o formulário
     return render_template('contas_por_credor.html', contas=[], credores=credores)
 
-# Incluir um novo credor
 @app.route('/add_credor', methods=['GET', 'POST'])
 def add_credor():
     if request.method == 'POST':
@@ -110,7 +121,6 @@ def add_credor():
         return redirect(url_for('get_creditors'))  # Redireciona para a página de listagem de credores
     return render_template('add_credor.html')
 
-# Alterar um credor existente
 @app.route('/edit_credor/<int:id>', methods=['GET', 'POST'])
 def edit_credor(id):
     credor = Credor.query.get_or_404(id)
@@ -126,7 +136,6 @@ def edit_credor(id):
         return redirect(url_for('get_creditors'))  # Redireciona para a página de listagem de credores
     return render_template('edit_credor.html', credor=credor)
 
-# Excluir um credor
 @app.route('/delete_credor/<int:id>', methods=['POST'])
 def delete_credor(id):
     credor = Credor.query.get_or_404(id)
@@ -135,10 +144,9 @@ def delete_credor(id):
     flash('Credor excluído com sucesso!', 'success')
     return redirect(url_for('get_creditors')) # Redireciona para a página de listagem de credores
 
-# Incluir uma nova conta
 @app.route('/add_conta', methods=['GET', 'POST'])
 def add_conta():
-    credores = Credor.query.all() # Antes do último return?
+    credores = Credor.query.all()
     if request.method == 'POST':
         descricao = request.form.get('descricao')
         valor = request.form.get('valor').replace(',', '.')  # Substituir vírgula por ponto
@@ -162,7 +170,6 @@ def add_conta():
     
     return render_template('add_conta.html', credores=credores, STATUS_MAP=STATUS_MAP)
 
-# Alterar uma conta existente
 @app.route('/edit_conta/<int:id>', methods=['GET', 'POST'])
 def edit_conta(id):
     conta = ContaAPagar.query.get_or_404(id)
@@ -189,17 +196,14 @@ def edit_conta(id):
     
     return render_template('edit_conta.html', conta=conta, credores=credores, STATUS_MAP=STATUS_MAP)
 
-# Excluir uma conta
 @app.route('/delete_conta/<int:id>', methods=['POST'])
 def delete_conta(id):
     conta = ContaAPagar.query.get_or_404(id)
     db.session.delete(conta)
     db.session.commit()
     flash('Conta excluída com sucesso!', 'success')
-    return redirect(url_for('bills'))  # Redireciona para a página de listagem de contas
+    return redirect(url_for('get_bills'))  # Redireciona para a página de listagem de contas
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # Cria as tabelas no banco de dados
     app.run(debug=True)
