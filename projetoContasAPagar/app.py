@@ -149,38 +149,48 @@ def export_bills_by_period_pdf():
     # Retornar o PDF como arquivo para download
     return send_file(io.BytesIO(pdf), download_name='relatorio_contas_por_periodo.pdf', as_attachment=True)
 
-@app.route('/contas-por-credor', methods=['GET', 'POST'])
+@app.route('/contas_por_credor', methods=['GET'])
 def contas_por_credor():
-    if request.method == 'POST':
-        credor_id = request.form.get('credor_id')
-        contas = ContaAPagar.query.filter_by(credor_id=credor_id).all()
-        credores = Credor.query.all() # Carregar a lista de credores para o formulário
-        return render_template('contas_por_credor.html', contas=contas, credores=credores)
+    credores = Credor.query.all()
+    contas_query = db.session.query(ContaAPagar)
+
+    # Adicionar filtros se existirem
+    credor_id = request.args.get('credor_id')
+    status_conta = request.args.get('status_conta')
+
+    if credor_id:
+        contas_query = contas_query.filter_by(credor_id=credor_id)
+    if status_conta:
+        contas_query = contas_query.filter_by(status_conta=status_conta)
     
-    credores = Credor.query.all() # Carregar a lista de credores para o formulário
-    return render_template('contas_por_credor.html', contas=[], credores=credores)
+    contas = contas_query.all()
+    
+    return render_template('contas_por_credor.html', contas=contas, credores=credores, STATUS_MAP=STATUS_MAP)
 
 @app.route('/exportar_contas_por_credor_pdf', methods=['GET'])
 def export_bills_by_creditor_pdf():
     credor_id = request.args.get('credor_id')
-    # Inclua filtros adicionais de status se aplicável
     status_conta = request.args.get('status_conta')
 
-    # Ajuste a consulta para filtrar as contas por credor
-    contas_query = db.session.query(ContaAPagar).join(Credor).filter(ContaAPagar.credor_id == credor_id)
+    # Cria a consulta base
+    contas_query = db.session.query(ContaAPagar).join(Credor).filter(Credor.id == ContaAPagar.credor_id)
 
+    # Aplica os filtros se existirem
+    if credor_id:
+        contas_query = contas_query.filter(ContaAPagar.credor_id == credor_id)
     if status_conta:
-        contas_query = contas_query.filter_by(status_conta=status_conta)
+        contas_query = contas_query.filter(ContaAPagar.status_conta == status_conta)
 
+    # Executa a consulta
     contas = contas_query.all()
 
-    # Renderizar o template para o PDF
+    # Renderiza o template para o PDF
     rendered = render_template('bills_by_creditor_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
     
-    # Gerar o PDF usando o HTML renderizado
+    # Gera o PDF usando o HTML renderizado
     pdf = pdfkit.from_string(rendered, False, configuration=config)
 
-    # Retornar o PDF como arquivo para download
+    # Retorna o PDF como arquivo para download
     return send_file(io.BytesIO(pdf), download_name='relatorio_contas_por_credor.pdf', as_attachment=True)
 
 
