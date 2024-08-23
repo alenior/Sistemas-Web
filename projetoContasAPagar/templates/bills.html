@@ -37,9 +37,10 @@
     </header>
     <main>
         <h1>Lista de Contas a Pagar</h1>
+        <input type="text" id="searchInput" placeholder="Buscar por descrição..." onkeyup="searchBill()" class="campo_de_busca">
         <a href="{{ url_for('add_conta') }}" class="btn btn-primary">Adicionar Nova Conta</a>
         <a href="{{ url_for('export_bills_pdf') }}" class="btn">Exportar PDF</a>
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="billsTable">
             <thead>
                 <tr>
                     <th>Descrição</th>
@@ -83,6 +84,28 @@
             <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
         </a>
     </div>
+    <script>
+        function searchBill() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("billsTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) {  // Começa do 1 para ignorar o cabeçalho
+                td = tr[i].getElementsByTagName("td")[0]; // Obtém a primeira coluna (Descrição)
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+
 </body>
 
 </html>

@@ -52,6 +52,16 @@ main {
     /* Faz o main ocupar o espaço disponível */
 }
 
+.campo_de_busca {
+    color:black;
+    border-color: #105ca8;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-align: center;
+    display: inline-block;
+}
+
 /* Estilo para todos os botões */
 button,
 .btn {
