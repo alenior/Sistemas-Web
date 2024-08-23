@@ -9,46 +9,66 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <!-- Correção no caminho do favicon -->
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+    <style>
+        main {
+            background: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
+            url("{{ url_for('static', filename='images/logo_ifce.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 20px;
+        }
+    </style>
 </head>
+<header>
+    <nav>
+        <ul>
+            <li><img src="{{url_for('static', filename='images/sistemas_web.png')}}" alt="Logo Sistemas Web"></li>
+            <li><a href="{{ url_for('index') }}">Início</a></li>
+            <li><a href="{{ url_for('get_creditors') }}">Credores</a></li>
+            <li><a href="{{ url_for('get_bills') }}">Contas a Pagar</a></li>
+            <li><a href="{{ url_for('bills_by_period') }}">Relatório de Contas</a></li>
+            <li><a href="{{ url_for('contas_por_credor') }}">Contas por Credor</a></li>
+            <li><img src="{{url_for('static', filename='images/sistemas_web2.png')}}" alt="Logo Sistemas Web"></li>
+        </ul>
+    </nav>
+</header>
 
 <body>
-    <h1>Editar Conta</h1>
-    <form method="POST">
-        <label for="descricao">Descrição:</label>
-        <input type="text" id="descricao" name="descricao" value="{{ conta.descricao }}" required>
-
-        <label for="valor">Valor:</label>
-        <input type="text" id="valor" name="valor" value="{{ conta.valor | replace('.', ',') }}" required>
-
-        <label for="data_vencimento">Data de Vencimento:</label>
-        <input type="date" id="data_vencimento" name="data_vencimento"
-            value="{{ conta.data_vencimento.strftime('%Y-%m-%d') }}" required>
-
-        <label for="status_conta">Status:</label>
-        <select id="status_conta" name="status_conta" required>
-            {% for key, value in STATUS_MAP.items() %}
-            <option value="{{ key }}" {% if conta.status_conta==key %}selected{% endif %}>{{ value }}</option>
-            {% endfor %}
-        </select>
-
-        <label for="credor_id">Credor:</label>
-        <select id="credor_id" name="credor_id" required>
-            {% for credor in credores %}
-            <option value="{{ credor.id }}" {% if credor.id==conta.credor_id %}selected{% endif %}>{{ credor.nome }}
-            </option>
-            {% endfor %}
-        </select>
-
-        <button type="submit">Salvar</button>
-    </form>
-    <a href="{{ url_for('index') }}">Voltar</a> <!-- Ajuste o link conforme necessário -->
+    <main>
+        <h1>Editar Conta</h1>
+        <form method="POST">
+            <label for="descricao">Descrição:</label>
+            <input type="text" id="descricao" name="descricao" value="{{ conta.descricao }}" required>
+            <label for="valor">Valor:</label>
+            <input type="text" id="valor" name="valor" value="{{ conta.valor | replace('.', ',') }}" required>
+            <label for="data_vencimento">Data de Vencimento:</label>
+            <input type="date" id="data_vencimento" name="data_vencimento"
+                value="{{ conta.data_vencimento.strftime('%Y-%m-%d') }}" required>
+            <label for="status_conta">Status:</label>
+            <select id="status_conta" name="status_conta" required>
+                {% for key, value in STATUS_MAP.items() %}
+                <option value="{{ key }}" {% if conta.status_conta==key %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+            <label for="credor_id">Credor:</label>
+            <select id="credor_id" name="credor_id" required>
+                {% for credor in credores %}
+                <option value="{{ credor.id }}" {% if credor.id==conta.credor_id %}selected{% endif %}>{{ credor.nome }}
+                </option>
+                {% endfor %}
+            </select><br>
+            <button type="submit" class="botao_a_direita">Salvar</button>
+        </form>
+        <a href="{{ url_for('get_bills') }}" class="botao_a_esquerda">Cancelar</a>
+    </main>
     <footer>
+        <img src="{{url_for('static', filename='images/telematica.png')}}" alt="Telemática" class="icone_a_esquerda">
         <p>Desenvolvido por Alencar Júnior</p>
     </footer>
 
-    <!-- Ícone do WhatsApp -->
     <div class="whatsapp-icon">
-        <a href="https://wa.me/85999321174" target="_blank" title="Enviar mensagem no WhatsApp">
+        <a href="https://wa.me/85999321174" target="_blank" rel="noopener" title="Enviar mensagem no WhatsApp">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
         </a>
     </div>

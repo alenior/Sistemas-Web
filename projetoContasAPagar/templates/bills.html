@@ -9,17 +9,29 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <!-- Correção no caminho do favicon -->
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+    <style>
+        main {
+            background: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
+            url("{{ url_for('static', filename='images/logo_ifce.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 20px;
+        }
+    </style>
 </head>
 
 <body>
     <header>
         <nav>
             <ul>
+                <li><img src="{{url_for('static', filename='images/sistemas_web.png')}}" alt="Logo Sistemas Web"></li>
                 <li><a href="{{ url_for('index') }}">Início</a></li>
                 <li><a href="{{ url_for('get_creditors') }}">Credores</a></li>
                 <li><a href="{{ url_for('get_bills') }}">Contas a Pagar</a></li>
                 <li><a href="{{ url_for('bills_by_period') }}">Relatório de Contas</a></li>
                 <li><a href="{{ url_for('contas_por_credor') }}">Contas por Credor</a></li>
+                <li><img src="{{url_for('static', filename='images/sistemas_web2.png')}}" alt="Logo Sistemas Web"></li>
             </ul>
         </nav>
     </header>
@@ -49,7 +61,7 @@
                     <td>{{ conta.credor_relacionado.nome }}</td>
                     <td>
                         <a href="{{ url_for('edit_conta', id=conta.id) }}" class="btn btn-warning">Editar</a>
-                        <form action="{{ url_for('delete_conta', id=conta.id) }}" method="post" style="display:inline;">
+                        <form class="display_inline" action="{{ url_for('delete_conta', id=conta.id) }}" method="post">
                             <button type="submit" class="btn btn-danger"
                                 onclick="return confirm('Tem certeza que deseja excluir esta conta?');">Excluir</button>
                         </form>
@@ -61,12 +73,13 @@
         </table>
     </main>
     <footer>
+        <img src="{{url_for('static', filename='images/telematica.png')}}" alt="Telemática" class="icone_a_esquerda">
         <p>Desenvolvido por Alencar Júnior</p>
     </footer>
 
     <!-- Ícone do WhatsApp -->
     <div class="whatsapp-icon">
-        <a href="https://wa.me/85999321174" target="_blank" title="Enviar mensagem no WhatsApp">
+        <a href="https://wa.me/85999321174" target="_blank" rel="noopener" title="Enviar mensagem no WhatsApp">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
         </a>
     </div>

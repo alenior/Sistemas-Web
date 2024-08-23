@@ -25,11 +25,13 @@
     <header>
         <nav>
             <ul>
+                <li><img src="{{url_for('static', filename='images/sistemas_web.png')}}" alt="Logo Sistemas Web"></li>
                 <li><a href="{{ url_for('index') }}">Início</a></li>
                 <li><a href="{{ url_for('get_creditors') }}">Credores</a></li>
                 <li><a href="{{ url_for('get_bills') }}">Contas a Pagar</a></li>
                 <li><a href="{{ url_for('bills_by_period') }}">Relatório de Contas</a></li>
                 <li><a href="{{ url_for('contas_por_credor') }}">Contas por Credor</a></li>
+                <li><img src="{{url_for('static', filename='images/sistemas_web2.png')}}" alt="Logo Sistemas Web"></li>
             </ul>
         </nav>
     </header>
@@ -60,8 +62,8 @@
                         <a href="{{ url_for('edit_credor', id=credor.id) }}" class="btn btn-warning">Editar</a>
                         <!-- Formulário para Excluir -->
                         <form action="{{ url_for('delete_credor', id=credor.id) }}" method="POST"
-                            style="display:inline;"
-                            onsubmit="return confirm('Tem certeza que deseja excluir este credor?');">
+                            onsubmit="return confirm('Tem certeza que deseja excluir este credor?');"
+                            class="display_inline">
                             <button type="submit">Excluir</button>
                         </form>
                     </td>
@@ -71,12 +73,13 @@
         </table>
     </main>
     <footer>
+        <img src="{{url_for('static', filename='images/telematica.png')}}" alt="Telemática" class="icone_a_esquerda">
         <p>Desenvolvido por Alencar Júnior</p>
     </footer>
 
     <!-- Ícone do WhatsApp -->
     <div class="whatsapp-icon">
-        <a href="https://wa.me/85999321174" target="_blank" title="Enviar mensagem no WhatsApp">
+        <a href="https://wa.me/85999321174" target="_blank" rel="noopener" title="Enviar mensagem no WhatsApp">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
         </a>
     </div>

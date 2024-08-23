@@ -9,36 +9,57 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <!-- Correção no caminho do favicon -->
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+    <style>
+        main {
+            background: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
+            url("{{ url_for('static', filename='images/logo_ifce.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 20px;
+        }
+    </style>
 </head>
+<header>
+    <nav>
+        <ul>
+            <li><img src="{{url_for('static', filename='images/sistemas_web.png')}}" alt="Logo Sistemas Web"></li>
+            <li><a href="{{ url_for('index') }}">Início</a></li>
+            <li><a href="{{ url_for('get_creditors') }}">Credores</a></li>
+            <li><a href="{{ url_for('get_bills') }}">Contas a Pagar</a></li>
+            <li><a href="{{ url_for('bills_by_period') }}">Relatório de Contas</a></li>
+            <li><a href="{{ url_for('contas_por_credor') }}">Contas por Credor</a></li>
+            <li><img src="{{url_for('static', filename='images/sistemas_web2.png')}}" alt="Logo Sistemas Web"></li>
+        </ul>
+    </nav>
+</header>
 
 <body>
-    <h1>Editar Credor</h1>
-    <form method="POST">
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" value="{{ credor.nome }}" required>
-
-        <label for="cnpj">CNPJ:</label>
-        <input type="text" id="cnpj" name="cnpj" value="{{ credor.cnpj }}" required>
-
-        <label for="telefone">Telefone:</label>
-        <input type="text" id="telefone" name="telefone" value="{{ credor.telefone }}" required>
-
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" value="{{ credor.email }}" required>
-
-        <label for="endereco">Endereço:</label>
-        <input type="text" id="endereco" name="endereco" value="{{ credor.endereco }}" required>
-
-        <button type="submit">Salvar</button>
-    </form>
-    <a href="{{ url_for('index') }}">Voltar</a> <!-- Ajuste o link conforme necessário -->
+    <main>
+        <h1>Editar Credor</h1>
+        <form method="POST">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" value="{{ credor.nome }}" required>
+            <label for="cnpj">CNPJ:</label>
+            <input type="text" id="cnpj" name="cnpj" value="{{ credor.cnpj }}" required>
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" name="telefone" value="{{ credor.telefone }}" required><br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ credor.email }}" required>
+            <label for="endereco">Endereço:</label>
+            <input type="text" id="endereco" name="endereco" value="{{ credor.endereco }}" required><br>
+            <button type="submit" class="botao_a_direita">Salvar</button>
+        </form>
+        <a href="{{ url_for('get_creditors') }}" class="botao_a_esquerda">Cancelar</a>
+    </main>
     <footer>
+        <img src="{{url_for('static', filename='images/telematica.png')}}" alt="Telemática" class="icone_a_esquerda">
         <p>Desenvolvido por Alencar Júnior</p>
     </footer>
 
     <!-- Ícone do WhatsApp -->
     <div class="whatsapp-icon">
-        <a href="https://wa.me/85999321174" target="_blank" title="Enviar mensagem no WhatsApp">
+        <a href="https://wa.me/85999321174" target="_blank" rel="noopener" title="Enviar mensagem no WhatsApp">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
         </a>
     </div>
