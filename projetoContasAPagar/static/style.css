@@ -1,13 +1,22 @@
+/* Estilos existentes */
+
 body {
+
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* Garante que o corpo ocupe pelo menos a altura da tela */
 }
 
 header {
-    background-color: #333;
+    background-color: #004c99;
+    /* Azul */
     color: #fff;
+    /* Branco */
     padding: 10px 0;
 }
 
@@ -25,18 +34,24 @@ nav ul li {
 
 nav ul li a {
     color: #fff;
+    /* Branco */
     text-decoration: none;
 }
 
 main {
-    padding: 20px;
+    
     text-align: center;
+    flex: 1;
+    /* Faz o main ocupar o espaço disponível */
 }
 
 /* Estilo para todos os botões */
-button, .btn {
-    background-color: #007bff; /* Cor de fundo do botão */
-    color: #fff; /* Cor do texto do botão */
+button,
+.btn {
+    background-color: #28a745;
+    /* Verde */
+    color: #fff;
+    /* Branco */
     border: none;
     border-radius: 4px;
     padding: 10px 20px;
@@ -49,27 +64,73 @@ button, .btn {
 }
 
 /* Efeito de hover para os botões */
-button:hover, .btn:hover {
-    background-color: #0056b3; /* Cor de fundo do botão ao passar o mouse */
+button:hover,
+.btn:hover {
+    background-color: #218838;
+    /* Verde mais escuro ao passar o mouse */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Estilo para botões desativados */
-button:disabled, .btn:disabled {
-    background-color: #6c757d; /* Cor de fundo do botão desativado */
+button:disabled,
+.btn:disabled {
+    background-color: #6c757d;
+    /* Cinza para botões desativados */
     cursor: not-allowed;
 }
 
 /* Estilo para botões de link */
 a.btn {
     background-color: transparent;
-    border: 1px solid #007bff;
-    color: #007bff;
+    border: 1px solid #0749ff;
+    /* Amarelo */
+    color:#0749ff;
+    /* Amarelo */
     padding: 8px 16px;
 }
 
 /* Efeito de hover para botões de link */
 a.btn:hover {
-    background-color: #007bff;
+    background-color: #ffc107;
+    /* Amarelo */
+    color: #000;
+    /* Preto */
+}
+
+/* Rodapé */
+footer {
+    background-color: #333;
+    /* Preto */
     color: #fff;
+    /* Branco */
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+}
+
+/* Ícone do WhatsApp */
+.whatsapp-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #25D366;
+    /* Verde do WhatsApp */
+    border-radius: 50%;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.whatsapp-icon a {
+    color: #fff;
+    /* Branco */
+    text-decoration: none;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.whatsapp-icon a:hover {
+    background-color: #128C7E;
+    /* Verde mais escuro do WhatsApp */
 }

@@ -1,42 +1,55 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar Conta</title>
-     <!-- Correção no caminho do CSS -->
+    <!-- Correção no caminho do CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <!-- Correção no caminho do favicon -->
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
 </head>
+
 <body>
     <h1>Adicionar Conta</h1>
     <form method="POST">
         <label for="descricao">Descrição:</label>
         <input type="text" id="descricao" name="descricao" required>
-        
+
         <label for="valor">Valor:</label>
         <input type="text" id="valor" name="valor" required>
-        
+
         <label for="data_vencimento">Data de Vencimento:</label>
         <input type="date" id="data_vencimento" name="data_vencimento" required>
-        
+
         <label for="status_conta">Status:</label>
         <select id="status_conta" name="status_conta" required>
             {% for key, value in STATUS_MAP.items() %}
-                <option value="{{ key }}">{{ value }}</option>
+            <option value="{{ key }}">{{ value }}</option>
             {% endfor %}
         </select>
-        
+
         <label for="credor_id">Credor:</label>
         <select id="credor_id" name="credor_id" required>
             {% for credor in credores %}
-                <option value="{{ credor.id }}">{{ credor.nome }}</option>
+            <option value="{{ credor.id }}">{{ credor.nome }}</option>
             {% endfor %}
         </select>
-        
+
         <button type="submit">Adicionar</button>
     </form>
-    <a href="{{ url_for('index') }}">Voltar</a>  <!-- Ajuste o link conforme necessário -->
+    <a href="{{ url_for('index') }}">Voltar</a> <!-- Ajuste o link conforme necessário -->
+    <footer>
+        <p>Desenvolvido por Alencar Júnior</p>
+    </footer>
+
+    <!-- Ícone do WhatsApp -->
+    <div class="whatsapp-icon">
+        <a href="https://wa.me/85999321174" target="_blank" title="Enviar mensagem no WhatsApp">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
+        </a>
+    </div>
 </body>
+
 </html>

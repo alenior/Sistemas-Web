@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <!-- Correção no caminho do favicon -->
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+    <style>
+        main {
+            background: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
+            url("{{ url_for('static', filename='images/logo_ifce.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 20px;
+        }
+    </style>
 </head>
+
 <body>
     <header>
         <nav>
@@ -25,5 +37,17 @@
         <h1>Bem-vindo ao Sistema de Controle de Contas a Pagar</h1>
         <p>Este sistema permite gerenciar suas contas a pagar e credores de forma simples e eficiente.</p>
     </main>
+    <footer>
+        <p>Desenvolvido por Alencar Júnior</p>
+    </footer>
+
+    <!-- Ícone do WhatsApp -->
+    <div class="whatsapp-icon">
+        <a href="https://wa.me/85999321174" target="_blank" title="Enviar mensagem no WhatsApp">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
+        </a>
+    </div>
+
 </body>
+
 </html>

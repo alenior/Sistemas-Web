@@ -25,7 +25,8 @@
         <h1>Relatório de Contas por Período</h1>
         <form method="get" action="{{ url_for('bills_by_period') }}">
             <label for="data_inicio">Data Início:</label>
-            <input type="date" id="data_inicio" name="data_inicio" value="{{ request.args.get('data_inicio') }}" required>
+            <input type="date" id="data_inicio" name="data_inicio" value="{{ request.args.get('data_inicio') }}"
+                required>
 
             <label for="data_fim">Data Fim:</label>
             <input type="date" id="data_fim" name="data_fim" value="{{ request.args.get('data_fim') }}" required>
@@ -83,6 +84,16 @@
             </tbody>
         </table>
     </main>
+    <footer>
+        <p>Desenvolvido por Alencar Júnior</p>
+    </footer>
+
+    <!-- Ícone do WhatsApp -->
+    <div class="whatsapp-icon">
+        <a href="https://wa.me/85999321174" target="_blank" title="Enviar mensagem no WhatsApp">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
+        </a>
+    </div>
 </body>
 
 </html>

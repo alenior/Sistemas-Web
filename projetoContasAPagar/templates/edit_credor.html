@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <!-- Correção no caminho do favicon -->
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
 </head>
+
 <body>
     <h1>Editar Credor</h1>
     <form method="POST">
@@ -30,5 +32,16 @@
         <button type="submit">Salvar</button>
     </form>
     <a href="{{ url_for('index') }}">Voltar</a> <!-- Ajuste o link conforme necessário -->
+    <footer>
+        <p>Desenvolvido por Alencar Júnior</p>
+    </footer>
+
+    <!-- Ícone do WhatsApp -->
+    <div class="whatsapp-icon">
+        <a href="https://wa.me/85999321174" target="_blank" title="Enviar mensagem no WhatsApp">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
+        </a>
+    </div>
 </body>
+
 </html>
