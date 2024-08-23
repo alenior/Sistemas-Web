@@ -2,6 +2,8 @@ from flask import Flask, render_template, url_for, request, redirect, flash, sen
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
 from weasyprint import HTML
+from io import BytesIO
+from flask_weasyprint import HTML, render_pdf
 import io
 import sys
 import os
@@ -75,79 +77,69 @@ def export_bills_pdf():
     # Envie o PDF para o usuário
     return send_file(io.BytesIO(pdf), as_attachment=True, download_name='contas_a_pagar.pdf')
 
-@app.route('/contas-por-periodo', methods=['GET', 'POST'])
+@app.route('/contas-por-periodo')
 def bills_by_period():
-    contas = []
+    data_inicio = request.args.get('data_inicio')
+    data_fim = request.args.get('data_fim')
+    credor_id = request.args.get('credor_id')
+    status_conta = request.args.get('status_conta')
 
-    # Se for um GET, definimos as datas padrão como hoje
-    data_inicio = date.today().strftime('%Y-%m-%d')
-    data_fim = date.today().strftime('%Y-%m-%d')
-    credor_id = request.args.get('credor_id', None)
-    status_conta = request.args.get('status_conta', None)
-
-    if request.method == 'POST':
-        # Supor que você receba as datas no formato 'YYYY-MM-DD'
-        data_inicio = request.form.get('data_inicio')
-        data_fim = request.form.get('data_fim')
-        credor_id = request.form.get('credor_id')
-        status_conta = request.form.get('status_conta')
-
-        if data_inicio and data_fim:
-        # Converter as datas para o formato necessário
-            data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d').date()
-            data_fim = datetime.strptime(data_fim, '%Y-%m-%d').date()
-            # Consulta ao banco de dados filtrando pelo período
-            contas = ContaAPagar.query.filter(
-                ContaAPagar.data_vencimento.between(data_inicio, data_fim)
-            )
-
-            if credor_id:
-                contas = contas.filter_by(credor_id=credor_id)
-            
-            if status_conta:
-                contas = contas.filter_by(status_conta=status_conta)
-
-            contas = contas.options(db.joinedload(ContaAPagar.credor_relacionado)).all()
-
-    credores = Credor.query.all()
-    statuses = STATUS_MAP.keys()
-
-    return render_template(
-        'bills_by_period.html', 
-        contas=contas, 
-        data_inicio=data_inicio, 
-        data_fim=data_fim, 
-        credores=credores,
-        statuses=statuses,
-        STATUS_MAP=STATUS_MAP  # Adiciona o STATUS_MAP ao contexto do template
+    # Filtro básico por data
+    query = db.session.query(ContaAPagar).filter(
+        ContaAPagar.data_vencimento.between(data_inicio, data_fim)
     )
+
+    # Filtro por credor, se fornecido
+    if credor_id:
+        query = query.filter(ContaAPagar.credor_id == credor_id)
+
+    # Filtro por status, se fornecido
+    if status_conta:
+        query = query.filter(ContaAPagar.status_conta == status_conta)
+
+    contas = query.all()
+    credores = Credor.query.all()
+
+    return render_template('bills_by_period.html', contas=contas, credores=credores, data_inicio=data_inicio, data_fim=data_fim, STATUS_MAP=STATUS_MAP)
 
 @app.route('/exportar_contas_por_periodo_pdf', methods=['GET'])
 def export_bills_by_period_pdf():
     # Ajuste a consulta conforme necessário para filtrar as contas por período
     data_inicio = request.args.get('data_inicio')
     data_fim = request.args.get('data_fim')
-    contas_query = db.session.query(ContaAPagar).filter(ContaAPagar.data_vencimento.between(data_inicio, data_fim))
-
-    # Inclua filtros adicionais de credor e status se aplicável
+     # Inclua filtros adicionais de credor e status se aplicável
     credor_id = request.args.get('credor_id')
     status_conta = request.args.get('status_conta')
 
-    if credor_id:
-        contas_query = contas_query.filter_by(credor_id=credor_id)
-    if status_conta:
-        contas_query = contas_query.filter_by(status_conta=status_conta)
+     # Verificar e converter as datas de string para objetos date
+    if data_inicio and data_fim:
+        data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d').date()
+        data_fim = datetime.strptime(data_fim, '%Y-%m-%d').date()
 
-    contas = contas_query.all()
+        # Construir a consulta com filtros
+        contas_query = db.session.query(ContaAPagar).filter(
+            ContaAPagar.data_vencimento.between(data_inicio, data_fim)
+        )
 
-    # Renderizar o template para o PDF
-    rendered = render_template('bills_by_period_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
-    
-    # Gerar o PDF usando o HTML renderizado
-    pdf = pdfkit.from_string(rendered, False, configuration=config)
+        if credor_id:
+            contas_query = contas_query.filter_by(credor_id=credor_id)
+            
+        if status_conta:
+            contas_query = contas_query.filter_by(status_conta=status_conta)
 
-    # Retornar o PDF como arquivo para download
-    return send_file(io.BytesIO(pdf), download_name='relatorio_contas_por_periodo.pdf', as_attachment=True)
+        contas = contas_query.all()
+
+        # Renderizar o template para o PDF
+        rendered = render_template('bills_by_period_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
+        
+        # Gerar o PDF usando o HTML renderizado
+        pdf = pdfkit.from_string(rendered, False, configuration=config)
+
+        # Retornar o PDF como arquivo para download
+        return send_file(io.BytesIO(pdf), download_name='relatorio_contas_por_periodo.pdf', as_attachment=True)
+
+    else:
+        return "Datas inválidas ou não fornecidas", 400
 
 @app.route('/contas_por_credor', methods=['GET'])
 def contas_por_credor():

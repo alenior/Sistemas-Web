@@ -35,6 +35,7 @@
                 </option>
                 {% endfor %}
             </select>
+
             <label for="status_conta">Status:</label>
             <select id="status_conta" name="status_conta">
                 <option value="">Selecione um status</option>
@@ -44,6 +45,7 @@
                 </option>
                 {% endfor %}
             </select>
+            
             <button type="submit">Filtrar</button>
             <a href="{{ url_for('export_bills_by_creditor_pdf', credor_id=request.args.get('credor_id'), status_conta=request.args.get('status_conta')) }}"
                 class="btn">Exportar PDF</a>
@@ -66,7 +68,7 @@
                 <tr>
                     <td>{{ conta.id }}</td>
                     <td>{{ conta.descricao }}</td>
-                    <td>R$ {{ '{:,.2f}'.format(conta.valor).replace('.', ',') }}</td> <!-- Formatação do valor -->
+                    <td>R$ {{ '{:,.2f}'.format(conta.valor).replace('.', ',') }}</td>
                     <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
                     <td>{{ STATUS_MAP[conta.status_conta] }}</td>
                     <td>{{ conta.credor_relacionado.nome }}</td>

@@ -36,7 +36,7 @@
             {% for conta in contas %}
             <tr>
                 <td>{{ conta.descricao }}</td>
-                <td>{{ conta.valor | format_currency }}</td>
+                <td>R$ {{ "%.2f"|format(conta.valor) | replace('.', ',') }}</td>
                 <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
                 <td>{{ STATUS_MAP[conta.status_conta] }}</td>
                 <td>{{ conta.credor_relacionado.nome }}</td>

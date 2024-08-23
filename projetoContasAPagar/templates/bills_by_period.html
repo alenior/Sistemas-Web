@@ -23,18 +23,18 @@
     </header>
     <main>
         <h1>Relatório de Contas por Período</h1>
-        <form method="POST" action="{{ url_for('bills_by_period') }}">
+        <form method="get" action="{{ url_for('bills_by_period') }}">
             <label for="data_inicio">Data Início:</label>
-            <input type="date" id="data_inicio" name="data_inicio" value="{{ data_inicio }}" required>
+            <input type="date" id="data_inicio" name="data_inicio" value="{{ request.args.get('data_inicio') }}" required>
 
             <label for="data_fim">Data Fim:</label>
-            <input type="date" id="data_fim" name="data_fim" value="{{ data_fim }}" required>
+            <input type="date" id="data_fim" name="data_fim" value="{{ request.args.get('data_fim') }}" required>
 
             <label for="credor_id">Credor:</label>
             <select id="credor_id" name="credor_id">
                 <option value="">Todos</option>
                 {% for credor in credores %}
-                <option value="{{ credor.id }}" {% if credor.id|string==request.form.get('credor_id') %}selected{% endif
+                <option value="{{ credor.id }}" {% if credor.id|string==request.args.get('credor_id') %}selected{% endif
                     %}>
                     {{ credor.nome }}
                 </option>
@@ -45,7 +45,7 @@
             <select id="status_conta" name="status_conta">
                 <option value="">Todos</option>
                 {% for status_key, status_value in STATUS_MAP.items() %}
-                <option value="{{ status_key }}" {% if status_key==request.form.get('status_conta') %}selected{% endif
+                <option value="{{ status_key }}" {% if status_key==request.args.get('status_conta') %}selected{% endif
                     %}>
                     {{ status_value }}
                 </option>
@@ -53,7 +53,7 @@
             </select>
 
             <button type="submit">Filtrar</button><br>
-            <a href="{{ url_for('export_bills_by_period_pdf', data_inicio=data_inicio, data_fim=data_fim, credor_id=credor_id, status_conta=status_conta) }}"
+            <a href="{{ url_for('export_bills_by_period_pdf', data_inicio=data_inicio, data_fim=data_fim, credor_id=request.args.get('credor_id'), status_conta=request.args.get('status_conta')) }}"
                 class="btn">Exportar PDF</a>
         </form>
 
