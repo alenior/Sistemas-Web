@@ -188,3 +188,11 @@ if __name__ == '__main__':
 ## Conclusão
 
 Este sistema web fornece uma solução eficiente e escalável para o controle de contas a pagar de uma empresa, garantindo segurança, usabilidade e performance. As tecnologias escolhidas permitem uma arquitetura em múltiplas camadas, facilitando a manutenção e futura expansão do sistema.
+
+LEMBRETES:
+
+- MENSAGENS FLASH.
+- RETORNOS DE TRATAMENTOS DE ERROS PERSONALIZADOS.
+- ROTINAS DE LOGIN E LOGOUT.
+- REGISTROS DE LOG.
+- 
