@@ -4,11 +4,13 @@ from datetime import datetime, date
 from weasyprint import HTML
 from io import BytesIO
 from flask_weasyprint import HTML, render_pdf
+
+import pdfkit
 import io
 import sys
 import os
+import re
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import pdfkit
 
 # Caminho para o executável do wkhtmltopdf
 path_wkhtmltopdf = '/usr/bin/wkhtmltopdf'
@@ -16,7 +18,7 @@ config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
 
 # Importar a instância de db e migrate do pacote
 from projetoContasAPagar import create_app, db
-from projetoContasAPagar.models import ContaAPagar, Credor  # Certifique-se de que este caminho está correto
+from projetoContasAPagar.models import ContaAPagar, Credor
 
 app = create_app()
 
@@ -225,10 +227,15 @@ def export_bills_by_creditor_pdf():
 def add_credor():
     if request.method == 'POST':
         nome = request.form.get('nome')
+
         cnpj = request.form.get('cnpj')
+        # (Opcional) Se preferir salvar o CNPJ sem formatação:
+        # cnpj = re.sub(r'\D', '', cnpj)  # Remove todos os caracteres não numéricos
+
         telefone = request.form.get('telefone')
         email = request.form.get('email')
         endereco = request.form.get('endereco')
+
         novo_credor = Credor(nome=nome, cnpj=cnpj,
                              telefone=telefone, email=email, endereco=endereco)
         db.session.add(novo_credor)

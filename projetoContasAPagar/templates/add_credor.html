@@ -37,17 +37,17 @@
     </header>
     <main>
         <h1>Adicionar Credor</h1>
-        <form method="POST">
+        <form method="POST" action="{{ url_for('add_credor') }}">
             <label for="nome">Nome:</label>
             <input type="text" id="nome" name="nome" required>
             <label for="cnpj">CNPJ:</label>
-            <input type="text" id="cnpj" name="cnpj" required>
+            <input type="text" id="cnpj" name="cnpj" oninput="formatCNPJ(this)" required>
             <label for="telefone">Telefone:</label>
-            <input type="text" id="telefone" name="telefone" required><br>
+            <input type="text" id="telefone" name="telefone" required><br><br>
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
             <label for="endereco">Endereço:</label>
-            <input type="text" id="endereco" name="endereco" required><br>
+            <input type="text" id="endereco" name="endereco" required><br><br>
             <button type="submit" class="botao_a_direita">Adicionar</button>
         </form>
         <a href="{{ url_for('get_creditors') }}" class="botao_a_esquerda">Cancelar</a>
@@ -63,6 +63,22 @@
             <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
         </a>
     </div>
+    <script>
+        function formatCNPJ(cnpjField) {
+            let cnpj = cnpjField.value.replace(/\D/g, '');  // Remove tudo o que não é dígito
+
+            if (cnpj.length > 14) cnpj = cnpj.slice(0, 14);  // Limita o número de dígitos a 14
+
+            // Formata o CNPJ no padrão xx.xxx.xxx/xxxx-xx
+            cnpj = cnpj.replace(/^(\d{2})(\d)/, "$1.$2");
+            cnpj = cnpj.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+            cnpj = cnpj.replace(/\.(\d{3})(\d)/, ".$1/$2");
+            cnpj = cnpj.replace(/(\d{4})(\d)/, "$1-$2");
+
+            cnpjField.value = cnpj;
+        }
+    </script>
+
 </body>
 
 </html>
