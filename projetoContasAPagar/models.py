@@ -6,7 +6,7 @@ class Credor(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # Coluna ID
     nome = db.Column(db.String(100), nullable=False)  # Coluna Nome
     cnpj = db.Column(db.String(18), nullable=False)
-    telefone = db.Column(db.String(15), nullable=False)
+    telefone = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(255), nullable=False)
     endereco = db.Column(db.String(255), nullable=False)
     contas = db.relationship('ContaAPagar', back_populates='credor_relacionado', lazy=True)

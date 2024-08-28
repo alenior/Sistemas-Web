@@ -233,6 +233,9 @@ def add_credor():
         # cnpj = re.sub(r'\D', '', cnpj)  # Remove todos os caracteres não numéricos
 
         telefone = request.form.get('telefone')
+        # (Opcional) Se preferir salvar o telefone sem formatação:
+        # telefone = re.sub(r'\D', '', telefone)  # Remove todos os caracteres não numéricos
+
         email = request.form.get('email')
         endereco = request.form.get('endereco')
 
