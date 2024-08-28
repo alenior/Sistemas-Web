@@ -10,7 +10,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pdfkit
 
-path_wkhtmltopdf = '/usr/bin/wkhtmltopdf'  # Caminho para o executável do wkhtmltopdf
+# Caminho para o executável do wkhtmltopdf
+path_wkhtmltopdf = '/usr/bin/wkhtmltopdf'
 config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
 
 # Importar a instância de db e migrate do pacote
@@ -29,22 +30,45 @@ STATUS_MAP = {
     'vencido': 'VENCIDO'
 }
 
+
 def format_currency(value):
     """Formata um valor como moeda (R$)."""
     return f'R$ {value:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
 
 # Registrar o filtro no Jinja2
 app.jinja_env.filters['format_currency'] = format_currency
 
 # Rota da página inicial
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 @app.route('/credores')
 def get_creditors():
-    credores = Credor.query.all()
+    credores = Credor.query.order_by(Credor.id.desc()).all()
+    # return render_template('creditors.html', credores=credores)
+
+    sort_by = request.args.get('sort_by', 'id')  # Ordena por 'id' por padrão
+# Ordena de forma decrescente por padrão
+    order = request.args.get('order', 'desc')
+
+    if sort_by == 'nome':
+        if order == 'asc':
+            credores = Credor.query.order_by(Credor.nome.asc()).all()
+        else:
+            credores = Credor.query.order_by(Credor.nome.desc()).all()
+    else:  # Ordenação por ID
+        if order == 'asc':
+            credores = Credor.query.order_by(Credor.id.asc()).all()
+        else:
+            credores = Credor.query.order_by(Credor.id.desc()).all()
+
     return render_template('creditors.html', credores=credores)
+
 
 @app.route('/export-creditors-pdf')
 def export_creditors_pdf():
@@ -59,23 +83,27 @@ def export_creditors_pdf():
     # Envie o PDF para o usuário
     return send_file(io.BytesIO(pdf), download_name='credores.pdf', as_attachment=True)
 
+
 @app.route('/contas')
 def get_bills():
     contas = ContaAPagar.query.all()
     return render_template('bills.html', contas=contas)
+
 
 @app.route('/export-bills-pdf')
 def export_bills_pdf():
     contas = ContaAPagar.query.all()  # Obtenha a lista de contas a pagar
 
     # Renderize o template HTML para o PDF
-    rendered = render_template('bills_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
+    rendered = render_template(
+        'bills_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
 
     # Crie o PDF a partir do HTML
     pdf = HTML(string=rendered).write_pdf()
 
     # Envie o PDF para o usuário
     return send_file(io.BytesIO(pdf), as_attachment=True, download_name='contas_a_pagar.pdf')
+
 
 @app.route('/contas-por-periodo')
 def bills_by_period():
@@ -102,16 +130,17 @@ def bills_by_period():
 
     return render_template('bills_by_period.html', contas=contas, credores=credores, data_inicio=data_inicio, data_fim=data_fim, STATUS_MAP=STATUS_MAP)
 
+
 @app.route('/exportar_contas_por_periodo_pdf', methods=['GET'])
 def export_bills_by_period_pdf():
     # Ajuste a consulta conforme necessário para filtrar as contas por período
     data_inicio = request.args.get('data_inicio')
     data_fim = request.args.get('data_fim')
-     # Inclua filtros adicionais de credor e status se aplicável
+    # Inclua filtros adicionais de credor e status se aplicável
     credor_id = request.args.get('credor_id')
     status_conta = request.args.get('status_conta')
 
-     # Verificar e converter as datas de string para objetos date
+    # Verificar e converter as datas de string para objetos date
     if data_inicio and data_fim:
         data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d').date()
         data_fim = datetime.strptime(data_fim, '%Y-%m-%d').date()
@@ -123,15 +152,16 @@ def export_bills_by_period_pdf():
 
         if credor_id:
             contas_query = contas_query.filter_by(credor_id=credor_id)
-            
+
         if status_conta:
             contas_query = contas_query.filter_by(status_conta=status_conta)
 
         contas = contas_query.all()
 
         # Renderizar o template para o PDF
-        rendered = render_template('bills_by_period_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
-        
+        rendered = render_template(
+            'bills_by_period_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
+
         # Gerar o PDF usando o HTML renderizado
         pdf = pdfkit.from_string(rendered, False, configuration=config)
 
@@ -140,6 +170,7 @@ def export_bills_by_period_pdf():
 
     else:
         return "Datas inválidas ou não fornecidas", 400
+
 
 @app.route('/contas_por_credor', methods=['GET'])
 def contas_por_credor():
@@ -154,10 +185,11 @@ def contas_por_credor():
         contas_query = contas_query.filter_by(credor_id=credor_id)
     if status_conta:
         contas_query = contas_query.filter_by(status_conta=status_conta)
-    
+
     contas = contas_query.all()
-    
+
     return render_template('contas_por_credor.html', contas=contas, credores=credores, STATUS_MAP=STATUS_MAP)
+
 
 @app.route('/exportar_contas_por_credor_pdf', methods=['GET'])
 def export_bills_by_creditor_pdf():
@@ -165,20 +197,23 @@ def export_bills_by_creditor_pdf():
     status_conta = request.args.get('status_conta')
 
     # Cria a consulta base
-    contas_query = db.session.query(ContaAPagar).join(Credor).filter(Credor.id == ContaAPagar.credor_id)
+    contas_query = db.session.query(ContaAPagar).join(
+        Credor).filter(Credor.id == ContaAPagar.credor_id)
 
     # Aplica os filtros se existirem
     if credor_id:
         contas_query = contas_query.filter(ContaAPagar.credor_id == credor_id)
     if status_conta:
-        contas_query = contas_query.filter(ContaAPagar.status_conta == status_conta)
+        contas_query = contas_query.filter(
+            ContaAPagar.status_conta == status_conta)
 
     # Executa a consulta
     contas = contas_query.all()
 
     # Renderiza o template para o PDF
-    rendered = render_template('bills_by_creditor_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
-    
+    rendered = render_template(
+        'bills_by_creditor_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
+
     # Gera o PDF usando o HTML renderizado
     pdf = pdfkit.from_string(rendered, False, configuration=config)
 
@@ -194,12 +229,15 @@ def add_credor():
         telefone = request.form.get('telefone')
         email = request.form.get('email')
         endereco = request.form.get('endereco')
-        novo_credor = Credor(nome=nome, cnpj=cnpj, telefone=telefone, email=email, endereco=endereco)
+        novo_credor = Credor(nome=nome, cnpj=cnpj,
+                             telefone=telefone, email=email, endereco=endereco)
         db.session.add(novo_credor)
         db.session.commit()
         flash('Credor adicionado com sucesso!', 'success')
-        return redirect(url_for('get_creditors'))  # Redireciona para a página de listagem de credores
+        # Redireciona para a página de listagem de credores
+        return redirect(url_for('get_creditors'))
     return render_template('add_credor.html')
+
 
 @app.route('/edit_credor/<int:id>', methods=['GET', 'POST'])
 def edit_credor(id):
@@ -213,8 +251,10 @@ def edit_credor(id):
 
         db.session.commit()
         flash('Credor alterado com sucesso!', 'success')
-        return redirect(url_for('get_creditors'))  # Redireciona para a página de listagem de credores
+        # Redireciona para a página de listagem de credores
+        return redirect(url_for('get_creditors'))
     return render_template('edit_credor.html', credor=credor)
+
 
 @app.route('/delete_credor/<int:id>', methods=['POST'])
 def delete_credor(id):
@@ -222,14 +262,17 @@ def delete_credor(id):
     db.session.delete(credor)
     db.session.commit()
     flash('Credor excluído com sucesso!', 'success')
-    return redirect(url_for('get_creditors')) # Redireciona para a página de listagem de credores
+    # Redireciona para a página de listagem de credores
+    return redirect(url_for('get_creditors'))
+
 
 @app.route('/add_conta', methods=['GET', 'POST'])
 def add_conta():
     credores = Credor.query.all()
     if request.method == 'POST':
         descricao = request.form.get('descricao')
-        valor = request.form.get('valor').replace(',', '.')  # Substituir vírgula por ponto
+        valor = request.form.get('valor').replace(
+            ',', '.')  # Substituir vírgula por ponto
         valor = float(valor)  # Converter para float após substituir a vírgula
         data_vencimento = request.form.get('data_vencimento')
         status_conta = request.form.get('status_conta')
@@ -246,9 +289,11 @@ def add_conta():
         db.session.add(nova_conta)
         db.session.commit()
         flash('Conta adicionada com sucesso!', 'success')
-        return redirect(url_for('get_bills'))  # Redireciona para a página de listagem de contas
-    
+        # Redireciona para a página de listagem de contas
+        return redirect(url_for('get_bills'))
+
     return render_template('add_conta.html', credores=credores, STATUS_MAP=STATUS_MAP)
+
 
 @app.route('/edit_conta/<int:id>', methods=['GET', 'POST'])
 def edit_conta(id):
@@ -272,9 +317,11 @@ def edit_conta(id):
 
         db.session.commit()
         flash('Conta alterada com sucesso!', 'success')
-        return redirect(url_for('get_bills'))  # Redireciona para a página de listagem de contas
-    
+        # Redireciona para a página de listagem de contas
+        return redirect(url_for('get_bills'))
+
     return render_template('edit_conta.html', conta=conta, credores=credores, STATUS_MAP=STATUS_MAP)
+
 
 @app.route('/delete_conta/<int:id>', methods=['POST'])
 def delete_conta(id):
@@ -282,7 +329,8 @@ def delete_conta(id):
     db.session.delete(conta)
     db.session.commit()
     flash('Conta excluída com sucesso!', 'success')
-    return redirect(url_for('get_bills'))  # Redireciona para a página de listagem de contas
+    # Redireciona para a página de listagem de contas
+    return redirect(url_for('get_bills'))
 
 
 if __name__ == '__main__':

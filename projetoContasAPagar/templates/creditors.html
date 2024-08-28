@@ -37,13 +37,19 @@
     </header>
     <main>
         <h1>Lista de Credores</h1>
-        <input type="text" id="searchInput" placeholder="Buscar por nome..." onkeyup="searchCreditor()" class="campo_de_busca">
+        <input type="text" id="searchInput" placeholder="Buscar por nome..." onkeyup="searchCreditor()"
+            class="campo_de_busca">
         <a href="{{ url_for('add_credor') }}" class="btn btn-primary">Adicionar Novo Credor</a>
         <a href="{{ url_for('export_creditors_pdf') }}" class="btn">Exportar PDF</a>
         <table class="table table-bordered" id="creditorsTable">
             <thead>
                 <tr>
-                    <th>Nome</th>
+                    <th><a href="?sort_by=id&order=desc">ID</a></th>
+                    <th>
+                        Nome
+                        <a href="?sort_by=nome&order=asc">▲</a>
+                        <a href="?sort_by=nome&order=desc">▼</a>
+                    </th>
                     <th>CNPJ</th>
                     <th>Telefone</th>
                     <th>Email</th>
@@ -54,6 +60,7 @@
             <tbody>
                 {% for credor in credores %}
                 <tr>
+                    <td>{{ credor.id }}</td>
                     <td>{{ credor.nome }}</td>
                     <td>{{ credor.cnpj }}</td>
                     <td>{{ credor.telefone }}</td>
@@ -93,7 +100,7 @@
             tr = table.getElementsByTagName("tr");
 
             for (i = 1; i < tr.length; i++) {  // Começa do 1 para ignorar o cabeçalho
-                td = tr[i].getElementsByTagName("td")[0]; // Obtém a primeira coluna (Nome)
+                td = tr[i].getElementsByTagName("td")[1]; // Obtém a primeira coluna (Nome)
                 if (td) {
                     txtValue = td.textContent || td.innerText;
                     if (txtValue.toUpperCase().indexOf(filter) > -1) {
