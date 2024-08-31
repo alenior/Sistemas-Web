@@ -88,7 +88,25 @@ def export_creditors_pdf():
 
 @app.route('/contas')
 def get_bills():
-    contas = ContaAPagar.query.all()
+# antigo: contas = ContaAPagar.query.all()
+
+# novo:
+
+    # Define a ordem dos status
+    status_order = {
+        'vencido': 1,
+        'a vencer': 2,
+        'pago': 3
+    }
+
+    # Consulta ordenando as contas pelo status usando a ordem definida
+    contas = ContaAPagar.query.order_by(
+        db.case(
+            *[(ContaAPagar.status_conta == status, order) for status, order in status_order.items()]
+        ),
+        ContaAPagar.data_vencimento.asc()
+    ).all()
+
     return render_template('bills.html', contas=contas)
 
 
