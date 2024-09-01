@@ -30,6 +30,12 @@ class ContaAPagar(db.Model):
     credor_id = db.Column(db.Integer, db.ForeignKey('credor.id'), nullable=False)
     credor_relacionado = db.relationship('Credor', back_populates='contas', lazy=True)
 
+    # Novo campo data_pagamento
+    data_pagamento = db.Column(db.Date, nullable=True)
+    
+    multa = db.Column(db.Float, default=0.0)
+    juros = db.Column(db.Float, default=0.0)
+
     def get_status_display(self):
         return STATUS_MAP.get(self.status_conta, 'Desconhecido')
 

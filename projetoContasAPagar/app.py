@@ -88,10 +88,6 @@ def export_creditors_pdf():
 
 @app.route('/contas')
 def get_bills():
-# antigo: contas = ContaAPagar.query.all()
-
-# novo:
-
     # Define a ordem dos status
     status_order = {
         'vencido': 1,
@@ -106,6 +102,22 @@ def get_bills():
         ),
         ContaAPagar.data_vencimento.asc()
     ).all()
+
+    # Calcula os valores para multa e juros
+    for conta in contas:
+        if conta.status_conta == 'pago':
+            # Se a conta foi paga, calcula multa e juros, se aplicável
+            if conta.data_pagamento and conta.data_pagamento > conta.data_vencimento:
+                dias_atraso = (conta.data_pagamento - conta.data_vencimento).days
+                conta.multa = conta.valor * 0.01  # 1% de multa
+                conta.juros = conta.valor * 0.002 * dias_atraso  # 0,2% por dia de atraso
+            else:
+                conta.multa = 0.00
+                conta.juros = 0.00
+        else:
+            # Para status 'a vencer' ou 'vencido', multa e juros são 0.00
+            conta.multa = 0.00
+            conta.juros = 0.00
 
     return render_template('bills.html', contas=contas)
 
@@ -305,13 +317,15 @@ def add_conta():
         data_vencimento = request.form.get('data_vencimento')
         status_conta = request.form.get('status_conta')
         credor_id = request.form.get('credor_id')
+        data_pagamento = request.form['data_pagamento'] or None
 
         nova_conta = ContaAPagar(
             descricao=descricao,
             valor=valor,
             data_vencimento=data_vencimento,
             status_conta=status_conta,
-            credor_id=credor_id
+            credor_id=credor_id,
+            data_pagamento=data_pagamento
         )
 
         db.session.add(nova_conta)
@@ -342,6 +356,7 @@ def edit_conta(id):
         conta.data_vencimento = request.form.get('data_vencimento')
         conta.status_conta = request.form.get('status_conta')
         conta.credor_id = request.form.get('credor_id')
+        conta.data_pagamento = request.form['data_pagamento'] or None
 
         db.session.commit()
         flash('Conta alterada com sucesso!', 'success')

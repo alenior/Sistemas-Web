@@ -40,24 +40,34 @@
         <form method="POST">
             <label for="descricao">Descrição:</label>
             <input type="text" id="descricao" name="descricao" value="{{ conta.descricao }}" required>
+
             <label for="valor">Valor:</label>
-            <input type="text" id="valor" name="valor" value="{{ conta.valor | replace('.', ',') }}" required>
+            <input type="text" id="valor" name="valor" value="{{ conta.valor | replace('.', ',') }}"
+                required>
+
             <label for="data_vencimento">Data de Vencimento:</label>
             <input type="date" id="data_vencimento" name="data_vencimento"
                 value="{{ conta.data_vencimento.strftime('%Y-%m-%d') }}" required>
+
             <label for="status_conta">Status:</label>
             <select id="status_conta" name="status_conta" required>
                 {% for key, value in STATUS_MAP.items() %}
                 <option value="{{ key }}" {% if conta.status_conta==key %}selected{% endif %}>{{ value }}</option>
                 {% endfor %}
-            </select>
+            </select><br><br>
+
             <label for="credor_id">Credor:</label>
             <select id="credor_id" name="credor_id" required>
                 {% for credor in credores %}
                 <option value="{{ credor.id }}" {% if credor.id==conta.credor_id %}selected{% endif %}>{{ credor.nome }}
                 </option>
                 {% endfor %}
-            </select><br>
+            </select>
+
+            <label for="data_pagamento">Data de Pagamento:</label>
+            <input type="date" id="data_pagamento" name="data_pagamento"
+                value="{{ conta.data_pagamento.strftime('%Y-%m-%d') if conta.data_pagamento else '' }}"><br>
+
             <button type="submit" class="botao_a_direita">Salvar</button>
         </form>
         <a href="{{ url_for('get_bills') }}" class="botao_a_esquerda">Cancelar</a>
