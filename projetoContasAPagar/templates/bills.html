@@ -36,7 +36,7 @@
         </nav>
     </header>
     <main>
-        <h1>Lista de Contas a Pagar</h1>
+        <h1 class="centralizar">Lista de Contas a Pagar</h1>
         <input type="text" id="searchInput" placeholder="Buscar por descrição..." onkeyup="searchBill()" class="campo_de_busca">
         <a href="{{ url_for('add_conta') }}" class="btn btn-primary">Adicionar Nova Conta</a>
         <a href="{{ url_for('export_bills_pdf') }}" class="btn">Exportar PDF</a>
@@ -51,6 +51,7 @@
                     <th>Valor</th>
                     <th>Multa</th>
                     <th>Juros</th>
+                    <th>Total</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -62,10 +63,10 @@
                     <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
                     <td>{{ conta.data_pagamento.strftime('%d/%m/%Y') if conta.data_pagamento else 'Não informada' }}</td>
                     <td>{{ conta.get_status_display() }}</td>
-                    <td>R$ {{ "{:,.2f}".format(conta.valor).replace(",", "X").replace(".", ",").replace("X", ".") }}
-                    </td>
-                    <td>R$ {{ "%.2f"|format(conta.multa) }}</td>
-                    <td>R$ {{ "%.2f"|format(conta.juros) }}</td>
+                    <td>R$ {{ "{:,.2f}".format(conta.valor).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+                    <td>R$ {{ "{:,.2f}".format(conta.multa).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+                    <td>R$ {{ "{:,.2f}".format(conta.juros).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+                    <td class="negrito">R$ {{ "{:,.2f}".format((conta.valor or 0) + (conta.multa or 0) + (conta.juros or 0)).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
                     <td>
                         <a href="{{ url_for('edit_conta', id=conta.id) }}" class="btn btn-warning">Editar</a>
                         <form class="display_inline" action="{{ url_for('delete_conta', id=conta.id) }}" method="post">

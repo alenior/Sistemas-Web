@@ -45,7 +45,7 @@
             <input type="text" id="valor" name="valor" required>
 
             <label for="data_vencimento">Data de Vencimento:</label>
-            <input type="date" id="data_vencimento" name="data_vencimento" required><br>
+            <input type="date" id="data_vencimento" name="data_vencimento" required><br><br>
 
             <label for="status_conta">Status:</label>
             <select id="status_conta" name="status_conta" required>
@@ -59,10 +59,10 @@
                 {% for credor in credores %}
                 <option value="{{ credor.id }}">{{ credor.nome }}</option>
                 {% endfor %}
-            </select><br>
+            </select>
 
             <label for="data_pagamento">Data de Pagamento:</label>
-            <input type="date" id="data_pagamento" name="data_pagamento">
+            <input type="date" id="data_pagamento" name="data_pagamento"><br><br>
 
             <button type="submit" class="botao_a_direita">Adicionar</button>
         </form>

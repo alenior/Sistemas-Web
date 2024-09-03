@@ -37,19 +37,19 @@
         /* Definir larguras específicas para cada coluna */
         th:nth-child(1),
         td:nth-child(1) {
-            width: 2%;
+            width: 15%;
         }
 
         /* ID */
         th:nth-child(2),
         td:nth-child(2) {
-            width: 20%;
+            width: 15%;
         }
 
         /* Descrição */
         th:nth-child(3),
         td:nth-child(3) {
-            width: 20%;
+            width: 10%;
         }
 
         /* Credor */
@@ -67,13 +67,13 @@
         /* Data de Pagamento */
         th:nth-child(6),
         td:nth-child(6) {
-            width: 7%;
+            width: 10%;
         }
 
         /* Status */
         th:nth-child(7),
         td:nth-child(7) {
-            width: 7%;
+            width: 5%;
         }
 
         /* Valor */
@@ -85,7 +85,7 @@
         /* Multa */
         th:nth-child(9),
         td:nth-child(9) {
-            width: 5%;
+            width: 10%;
         }
 
         @media print {
@@ -102,12 +102,8 @@
                 page-break-inside: avoid;
             }
 
-            .col-id {
-                width: 5%;
-            }
-
             .col-descricao {
-                width: 25%;
+                width: 30%;
             }
 
             .col-valor, .col-multa, .col-juros, .col-status {
@@ -122,11 +118,10 @@
 </head>
 
 <body>
-    <h1>Relatório de Contas a Pagar</h1>
+    <h1 class="centralizar">Relatório de Contas a Pagar</h1>
     <table>
         <thead>
             <tr>
-                <th class="col-id">ID</th>
                 <th class="col-descricao">Descrição</th>
                 <th class="col-credor">Credor</th>
                 <th class="col-vencimento">Data de Vencimento</th>
@@ -135,20 +130,21 @@
                 <th class="col-valor">Valor</th>
                 <th class="col-multa">Multa</th>
                 <th class="col-juros">Juros</th>
+                <th class="col-total">Total</th>
             </tr>
         </thead>
         <tbody>
             {% for conta in contas %}
             <tr>
-                <td>{{ conta.id }}</td>
                 <td>{{ conta.descricao }}</td>
                 <td>{{ conta.credor_relacionado.nome }}</td>
                 <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
                 <td>{{ conta.data_pagamento.strftime('%d/%m/%Y') if conta.data_pagamento else 'Não informada' }}</td>
                 <td>{{ STATUS_MAP[conta.status_conta] }}</td>
                 <td>R$ {{ '{:,.2f}'.format(conta.valor) }}</td>
-                <td>R$ {{ "%.2f"|format(conta.multa or 0) }}</td>
-                <td>R$ {{ "%.2f"|format(conta.juros or 0) }}</td>
+                <td>R$ {{ "{:,.2f}".format(conta.multa or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+                <td>R$ {{ "{:,.2f}".format(conta.juros or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+                <td class="negrito">R$ {{ "{:,.2f}".format((conta.valor or 0) + (conta.multa or 0) + (conta.juros or 0)).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
             </tr>
             {% endfor %}
         </tbody>

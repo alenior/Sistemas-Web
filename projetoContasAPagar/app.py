@@ -41,9 +41,18 @@ def format_currency(value):
 # Registrar o filtro no Jinja2
 app.jinja_env.filters['format_currency'] = format_currency
 
+def atualizar_status_contas():
+    contas_a_vencer = ContaAPagar.query.filter_by(status_conta='a_vencer').all()
+    hoje = date.today()
+
+    for conta in contas_a_vencer:
+        if conta.data_vencimento < hoje:
+            conta.status_conta = 'vencido'
+            db.session.add(conta)
+    
+    db.session.commit()
+
 # Rota da página inicial
-
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -79,8 +88,18 @@ def export_creditors_pdf():
     # Renderize o template HTML para o PDF
     rendered = render_template('creditors_pdf.html', credores=credores)
 
+    # CSS customizado para centralizar o título
+    centralize_css = CSS(string='''
+        body {
+            font-size: 12px;
+        }
+        .centralizar {
+            text-align: center;
+        }
+    ''')
+
     # Crie o PDF a partir do HTML
-    pdf = HTML(string=rendered).write_pdf()
+    pdf = HTML(string=rendered).write_pdf(stylesheets=[centralize_css], presentational_hints=True)
 
     # Envie o PDF para o usuário
     return send_file(io.BytesIO(pdf), download_name='credores.pdf', as_attachment=True)
@@ -88,6 +107,9 @@ def export_creditors_pdf():
 
 @app.route('/contas')
 def get_bills():
+    # Atualiza o status das contas antes de realizar a consulta
+    atualizar_status_contas()
+    
     # Define a ordem dos status
     status_order = {
         'vencido': 1,
@@ -138,6 +160,9 @@ def export_bills_pdf():
         }
         body {
             font-size: 12px;
+        }
+        .centralizar {
+            text-align: center;                
         }
     ''')
 
