@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,30 +10,131 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed; /* Define um layout fixo para a tabela */
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
+            word-wrap: break-word; /* Permite quebra de linha dentro das células */
+            font-size: 12px; /* Reduz o tamanho da fonte para melhor encaixe */
+            text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
+        td {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Definir larguras específicas para cada coluna */
+        th:nth-child(1),
+        td:nth-child(1) {
+            width: 2%;
+        }
+
+        /* ID */
+        th:nth-child(2),
+        td:nth-child(2) {
+            width: 20%;
+        }
+
+        /* Descrição */
+        th:nth-child(3),
+        td:nth-child(3) {
+            width: 20%;
+        }
+
+        /* Credor */
+        th:nth-child(4),
+        td:nth-child(4) {
+            width: 7%;
+        }
+
+        /* Data de Vencimento */
+        th:nth-child(5),
+        td:nth-child(5) {
+            width: 7%;
+        }
+
+        /* Data de Pagamento */
+        th:nth-child(6),
+        td:nth-child(6) {
+            width: 7%;
+        }
+
+        /* Status */
+        th:nth-child(7),
+        td:nth-child(7) {
+            width: 7%;
+        }
+
+        /* Valor */
+        th:nth-child(8),
+        td:nth-child(8) {
+            width: 5%;
+        }
+
+        /* Multa */
+        th:nth-child(9),
+        td:nth-child(9) {
+            width: 5%;
+        }
+
+        @media print {
+            body {
+                font-size: 12px;
+                color: #000;
+            }
+
+            th, td {
+                font-size: 12px;
+            }
+
+            table {
+                page-break-inside: avoid;
+            }
+
+            .col-id {
+                width: 5%;
+            }
+
+            .col-descricao {
+                width: 25%;
+            }
+
+            .col-valor, .col-multa, .col-juros, .col-status {
+                width: 12%;
+            }
+
+            .col-vencimento, .col-pagamento {
+                width: 11%;
+            }
+        }
     </style>
 </head>
+
 <body>
     <h1>Relatório de Contas a Pagar</h1>
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Descrição</th>
-                <th>Valor</th>
-                <th>Data de Vencimento</th>
-                <th>Status</th>
-                <th>Credor</th>
+                <th class="col-id">ID</th>
+                <th class="col-descricao">Descrição</th>
+                <th class="col-credor">Credor</th>
+                <th class="col-vencimento">Data de Vencimento</th>
+                <th class="col-pagamento">Data de Pagamento</th>
+                <th class="col-status">Status</th>
+                <th class="col-valor">Valor</th>
+                <th class="col-multa">Multa</th>
+                <th class="col-juros">Juros</th>
             </tr>
         </thead>
         <tbody>
@@ -40,13 +142,17 @@
             <tr>
                 <td>{{ conta.id }}</td>
                 <td>{{ conta.descricao }}</td>
-                <td>R$ {{ '{:,.2f}'.format(conta.valor) }}</td>
-                <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
-                <td>{{ STATUS_MAP[conta.status_conta] }}</td>
                 <td>{{ conta.credor_relacionado.nome }}</td>
+                <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
+                <td>{{ conta.data_pagamento.strftime('%d/%m/%Y') if conta.data_pagamento else 'Não informada' }}</td>
+                <td>{{ STATUS_MAP[conta.status_conta] }}</td>
+                <td>R$ {{ '{:,.2f}'.format(conta.valor) }}</td>
+                <td>R$ {{ "%.2f"|format(conta.multa or 0) }}</td>
+                <td>R$ {{ "%.2f"|format(conta.juros or 0) }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </body>
+
 </html>

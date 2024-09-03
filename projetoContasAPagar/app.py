@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, send_file, make_response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
-from weasyprint import HTML
+from weasyprint import HTML, CSS
 from io import BytesIO
 from flask_weasyprint import HTML, render_pdf
 
@@ -129,12 +129,26 @@ def export_bills_pdf():
     # Renderize o template HTML para o PDF
     rendered = render_template(
         'bills_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
+    
+    # CSS customizado para orientação paisagem
+    landscape_css = CSS(string='''
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body {
+            font-size: 12px;
+        }
+    ''')
 
     # Crie o PDF a partir do HTML
-    pdf = HTML(string=rendered).write_pdf()
+    pdf = HTML(string=rendered).write_pdf(stylesheets=[landscape_css], presentational_hints=True)
+
+    # Use io.BytesIO para armazenar o PDF em memória
+    pdf_io = io.BytesIO(pdf)
 
     # Envie o PDF para o usuário
-    return send_file(io.BytesIO(pdf), as_attachment=True, download_name='contas_a_pagar.pdf')
+    return send_file(pdf_io, as_attachment=True, download_name='contas_a_pagar.pdf')
 
 
 @app.route('/contas-por-periodo')

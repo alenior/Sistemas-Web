@@ -44,11 +44,11 @@
             <thead>
                 <tr>
                     <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Data de Vencimento</th>
-                    <th>Status</th>
                     <th>Credor</th>
+                    <th>Data de Vencimento</th>
                     <th>Data de Pagamento</th>
+                    <th>Status</th>
+                    <th>Valor</th>
                     <th>Multa</th>
                     <th>Juros</th>
                     <th>Ações</th>
@@ -58,12 +58,12 @@
                 {% for conta in contas %}
                 <tr>
                     <td>{{ conta.descricao }}</td>
+                    <td>{{ conta.credor_relacionado.nome }}</td>
+                    <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ conta.data_pagamento.strftime('%d/%m/%Y') if conta.data_pagamento else 'Não informada' }}</td>
+                    <td>{{ conta.get_status_display() }}</td>
                     <td>R$ {{ "{:,.2f}".format(conta.valor).replace(",", "X").replace(".", ",").replace("X", ".") }}
                     </td>
-                    <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
-                    <td>{{ conta.get_status_display() }}</td>
-                    <td>{{ conta.credor_relacionado.nome }}</td>
-                    <td>{{ conta.data_pagamento.strftime('%d/%m/%Y') if conta.data_pagamento else 'Não informada' }}</td>
                     <td>R$ {{ "%.2f"|format(conta.multa) }}</td>
                     <td>R$ {{ "%.2f"|format(conta.juros) }}</td>
                     <td>
