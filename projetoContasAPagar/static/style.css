@@ -29,7 +29,7 @@ nav ul {
 
 nav ul li {
     display: inline;
-    
+
     margin: 20px;
 }
 
@@ -41,19 +41,19 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-    background-color:#eef3f7;
-    color:#072cff;
+    background-color: #eef3f7;
+    color: #072cff;
 }
 
 main {
-    
+
     text-align: center;
     flex: 1;
     /* Faz o main ocupar o espaço disponível */
 }
 
 .campo_de_busca {
-    color:black;
+    color: black;
     border-color: #105ca8;
     border-radius: 4px;
     padding: 10px 20px;
@@ -65,6 +65,29 @@ main {
 .negrito {
     font-weight: bold;
 }
+
+.status {
+    padding: 5px;
+    color: white;
+    /* Cor do texto branca para contraste */
+    border-radius: 4px;
+    text-align: center;
+}
+
+.status.pago {
+    background-color: green;
+}
+
+.status.a_vencer {
+    background-color: yellow;
+    color: black;
+    /* Texto preto para melhor contraste com o amarelo */
+}
+
+.status.vencido {
+    background-color: red;
+}
+
 
 /* Estilo para todos os botões */
 button,
@@ -105,7 +128,7 @@ a.btn {
     background-color: transparent;
     border: 1px solid #0749ff;
     /* Amarelo */
-    color:#0749ff;
+    color: #0749ff;
     /* Amarelo */
     padding: 8px 16px;
 }
@@ -123,8 +146,8 @@ a.btn:hover {
 }
 
 .botao_a_esquerda {
-    background-color:red;
-    box-shadow:0 4px 8px rgba(0, 0, 0, 0.507);
+    background-color: red;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.507);
     float: left;
     text-decoration: none;
     color: #fff;
@@ -139,7 +162,7 @@ a.btn:hover {
 }
 
 .botao_a_esquerda:hover {
-    background-color:rgb(209, 52, 52);
+    background-color: rgb(209, 52, 52);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 

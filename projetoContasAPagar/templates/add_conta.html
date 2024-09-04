@@ -37,32 +37,35 @@
     </header>
     <main>
         <h1>Adicionar Conta</h1>
-        <form method="POST">
+        <form method="POST" action="{{ url_for('add_conta') }}">
             <label for="descricao">Descrição:</label>
             <input type="text" id="descricao" name="descricao" required>
 
             <label for="valor">Valor:</label>
             <input type="text" id="valor" name="valor" required>
 
-            <label for="data_vencimento">Data de Vencimento:</label>
-            <input type="date" id="data_vencimento" name="data_vencimento" required><br><br>
-
-            <label for="status_conta">Status:</label>
-            <select id="status_conta" name="status_conta" required>
-                {% for key, value in STATUS_MAP.items() %}
-                <option value="{{ key }}">{{ value }}</option>
-                {% endfor %}
-            </select>
-
-            <label for="credor_id">Credor:</label>
-            <select id="credor_id" name="credor_id" required>
+            <label for="credor_id">Credor</label>
+            <select class="form-control" id="credor_id" name="credor_id">
+                <option value="" selected>Escolha um credor</option>
                 {% for credor in credores %}
                 <option value="{{ credor.id }}">{{ credor.nome }}</option>
                 {% endfor %}
             </select>
 
-            <label for="data_pagamento">Data de Pagamento:</label>
-            <input type="date" id="data_pagamento" name="data_pagamento"><br><br>
+            <label for="status_conta">Status da Conta</label>
+            <select class="form-control" id="status_conta" name="status_conta">
+                <option value="a vencer" selected>A Vencer</option>
+                <option value="pago">Pago</option>
+                <option value="vencido">Vencido</option>
+            </select><br><br>
+
+            <label for="data_vencimento">Data de Vencimento: </label>
+            <input type="date" class="form-control" id="data_vencimento" name="data_vencimento" value="{{ data_atual }}"
+                required>
+
+            <label for="data_pagamento">Data de Pagamento: </label>
+            <input type="date" class="form-control" id="data_pagamento" name="data_pagamento" value="{{ data_atual }}"
+                required><br><br>
 
             <button type="submit" class="botao_a_direita">Adicionar</button>
         </form>

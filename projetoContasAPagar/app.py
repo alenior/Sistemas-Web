@@ -4,6 +4,7 @@ from datetime import datetime, date
 from weasyprint import HTML, CSS
 from io import BytesIO
 from flask_weasyprint import HTML, render_pdf
+from sqlalchemy import case
 
 import pdfkit
 import io
@@ -119,9 +120,9 @@ def get_bills():
 
     # Consulta ordenando as contas pelo status usando a ordem definida
     contas = ContaAPagar.query.order_by(
-        db.case(
+        case(
             *[(ContaAPagar.status_conta == status, order) for status, order in status_order.items()]
-        ),
+        ).asc(),
         ContaAPagar.data_vencimento.asc()
     ).all()
 
@@ -141,7 +142,7 @@ def get_bills():
             conta.multa = 0.00
             conta.juros = 0.00
 
-    return render_template('bills.html', contas=contas)
+    return render_template('bills.html', contas=contas, STATUS_MAP=STATUS_MAP)
 
 
 @app.route('/export-bills-pdf')
@@ -348,16 +349,25 @@ def delete_credor(id):
 @app.route('/add_conta', methods=['GET', 'POST'])
 def add_conta():
     credores = Credor.query.all()
+
+    # Obter a data atual
+    data_atual = datetime.today().date().strftime('%Y-%m-%d')
+
     if request.method == 'POST':
         descricao = request.form.get('descricao')
         valor = request.form.get('valor').replace(
             ',', '.')  # Substituir vírgula por ponto
         valor = float(valor)  # Converter para float após substituir a vírgula
-        data_vencimento = request.form.get('data_vencimento')
+
+        # Usar a data do formulário ou a data atual, se não fornecida
+        data_vencimento = request.form.get('data_vencimento') or data_atual
+
         status_conta = request.form.get('status_conta')
         credor_id = request.form.get('credor_id')
-        data_pagamento = request.form['data_pagamento'] or None
 
+        data_pagamento = request.form.get('data_pagamento') or data_atual
+
+        # Cria uma nova conta a pagar com os dados fornecidos
         nova_conta = ContaAPagar(
             descricao=descricao,
             valor=valor,
@@ -369,11 +379,12 @@ def add_conta():
 
         db.session.add(nova_conta)
         db.session.commit()
+
         flash('Conta adicionada com sucesso!', 'success')
         # Redireciona para a página de listagem de contas
         return redirect(url_for('get_bills'))
-
-    return render_template('add_conta.html', credores=credores, STATUS_MAP=STATUS_MAP)
+    # Renderiza o template com a lista de credores e o mapa de status
+    return render_template('add_conta.html', credores=credores, STATUS_MAP=STATUS_MAP, data_atual=data_atual)
 
 
 @app.route('/edit_conta/<int:id>', methods=['GET', 'POST'])
