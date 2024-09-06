@@ -88,6 +88,27 @@ main {
     background-color: red;
 }
 
+/* Cores de fundo para os status */
+.status-vencido {
+    background-color: red;
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.status-a-vencer {
+    background-color: yellow;
+    color: black;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.status-pago {
+    background-color: green;
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+}
 
 /* Estilo para todos os botões */
 button,

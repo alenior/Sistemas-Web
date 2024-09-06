@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, send_file, make_response
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from weasyprint import HTML, CSS
 from io import BytesIO
 from flask_weasyprint import HTML, render_pdf
@@ -52,6 +52,15 @@ def atualizar_status_contas():
             db.session.add(conta)
     
     db.session.commit()
+
+@app.template_filter('format_currency')
+def format_currency(value):
+    if value is None or value == 'undefined':
+        return "R$ 0,00"
+    try:
+        return "R$ {:.2f}".format(value).replace('.', ',')
+    except (TypeError, ValueError):
+        return "R$ 0,00"
 
 # Rota da página inicial
 @app.route('/')
@@ -184,6 +193,28 @@ def bills_by_period():
     credor_id = request.args.get('credor_id')
     status_conta = request.args.get('status_conta')
 
+    hoje = datetime.now()
+
+    # Primeiro dia do mês anterior
+    if not data_inicio:
+        primeiro_dia_mes_anterior = hoje.replace(day=1) - timedelta(days=1)
+        data_inicio = primeiro_dia_mes_anterior.replace(day=1).strftime('%Y-%m-%d')
+    
+    # Último dia do mês posterior
+    if not data_fim:
+        # Primeiro dia do mês seguinte
+        primeiro_dia_mes_posterior = (hoje.replace(day=1) + timedelta(days=31)).replace(day=1)
+        # Último dia do mês seguinte
+        ultimo_dia_mes_posterior = (primeiro_dia_mes_posterior + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+        data_fim = ultimo_dia_mes_posterior.strftime('%Y-%m-%d')
+
+     # Ordenação personalizada por status
+    status_order = {
+        'vencido': 1,
+        'a_vencer': 2,
+        'pago': 3
+    }
+
     # Filtro básico por data
     query = db.session.query(ContaAPagar).filter(
         ContaAPagar.data_vencimento.between(data_inicio, data_fim)
@@ -197,8 +228,25 @@ def bills_by_period():
     if status_conta:
         query = query.filter(ContaAPagar.status_conta == status_conta)
 
-    contas = query.all()
-    credores = Credor.query.all()
+   # Adicionar ordenação personalizada
+    contas = query.order_by(
+        case(
+            *[
+                (ContaAPagar.status_conta == 'vencido', 1),
+                (ContaAPagar.status_conta == 'a_vencer', 2),
+                (ContaAPagar.status_conta == 'pago', 3)
+            ]
+        ),
+        ContaAPagar.data_vencimento
+    ).all()
+
+    # Verifique se todos os campos numéricos estão definidos
+    for conta in contas:
+        conta.valor = conta.valor or 0
+        conta.multa = conta.multa or 0
+        conta.juros = conta.juros or 0
+
+    credores = Credor.query.order_by(Credor.nome).all()
 
     return render_template('bills_by_period.html', contas=contas, credores=credores, data_inicio=data_inicio, data_fim=data_fim, STATUS_MAP=STATUS_MAP)
 

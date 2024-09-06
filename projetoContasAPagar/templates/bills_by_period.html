@@ -37,11 +37,10 @@
         <h1>Relatório de Contas por Período</h1>
         <form method="get" action="{{ url_for('bills_by_period') }}">
             <label for="data_inicio">Data Início:</label>
-            <input type="date" id="data_inicio" name="data_inicio" value="{{ request.args.get('data_inicio') }}"
-                required>
+            <input type="date" id="data_inicio" name="data_inicio" value="{{ data_inicio }}" required>
 
             <label for="data_fim">Data Fim:</label>
-            <input type="date" id="data_fim" name="data_fim" value="{{ request.args.get('data_fim') }}" required>
+            <input type="date" id="data_fim" name="data_fim" value="{{ data_fim }}" required>
 
             <label for="credor_id">Credor:</label>
             <select id="credor_id" name="credor_id">
@@ -74,9 +73,11 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Descrição</th>
                     <th>Valor</th>
+                    <th>Multa</th>
+                    <th>Juros</th>
+                    <th>Total</th>
                     <th>Data de Vencimento</th>
                     <th>Status</th>
                     <th>Credor</th>
@@ -85,11 +86,51 @@
             <tbody>
                 {% for conta in contas %}
                 <tr>
-                    <td>{{ conta.id }}</td>
                     <td>{{ conta.descricao }}</td>
-                    <td>R$ {{ "{:.2f}".format(conta.valor) | replace('.', ',') }}</td>
+                    <td>
+                        {% if conta.valor is not none %}
+                            {{ conta.valor | format_currency }}
+                        {% else %}
+                            R$ 0,00
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if conta.multa is not none %}
+                            {{ conta.multa | format_currency }}
+                        {% else %}
+                            R$ 0,00
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if conta.juros is not none %}
+                            {{ conta.juros | format_currency }}
+                        {% else %}
+                            R$ 0,00
+                        {% endif %}
+                    </td>
+                    <td><strong>
+                            {% if conta.valor_total is not none %}
+                                {{ conta.valor_total | format_currency }}
+                            {% else %}
+                                R$ 0,00
+                            {% endif %}
+                        </strong>
+                    </td>
+
                     <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
-                    <td>{{ STATUS_MAP[conta.status_conta] }}</td>
+                    <td>
+                        <span class="
+                            {% if conta.status_conta == 'vencido' %}
+                                status-vencido
+                            {% elif conta.status_conta == 'a_vencer' %}
+                                status-a-vencer
+                            {% elif conta.status_conta == 'pago' %}
+                                status-pago
+                            {% endif %}
+                        ">
+                            {{ STATUS_MAP[conta.status_conta] }}
+                        </span>
+                    </td>
                     <td>{{ conta.credor_relacionado.nome }}</td>
                 </tr>
                 {% endfor %}

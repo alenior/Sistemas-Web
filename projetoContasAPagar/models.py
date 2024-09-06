@@ -35,6 +35,11 @@ class ContaAPagar(db.Model):
     multa = db.Column(db.Float, default=0.0)
     juros = db.Column(db.Float, default=0.0)
 
+    @property
+    def valor_total(self):
+        # Calcula o valor total incluindo valor, multa e juros
+        return (self.valor or 0) + (self.multa or 0) + (self.juros or 0)
+
     def get_status_display(self):
         return STATUS_MAP.get(self.status_conta, 'Desconhecido')
 
