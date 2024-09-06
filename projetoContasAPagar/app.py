@@ -156,7 +156,19 @@ def get_bills():
 
 @app.route('/export-bills-pdf')
 def export_bills_pdf():
-    contas = ContaAPagar.query.all()  # Obtenha a lista de contas a pagar
+    # Ordem de prioridade dos status
+    status_order = {'vencido': 1, 'a_vencer': 2, 'pago': 3}
+
+    # Obtenha a lista de contas a pagar e ordene por status
+    contas_query = ContaAPagar.query
+
+    # Ordenar por status utilizando a ordem definida
+    status_case = db.case(
+        *[(ContaAPagar.status_conta == status, rank) for status, rank in status_order.items()],
+        else_=len(status_order) + 1
+    )
+
+    contas = contas_query.order_by(status_case).all()
 
     # Renderize o template HTML para o PDF
     rendered = render_template(
@@ -260,10 +272,16 @@ def export_bills_by_period_pdf():
     credor_id = request.args.get('credor_id')
     status_conta = request.args.get('status_conta')
 
+    # Ordem de prioridade dos status
+    status_order = {'vencido': 1, 'a_vencer': 2, 'pago': 3}
+
     # Verificar e converter as datas de string para objetos date
     if data_inicio and data_fim:
-        data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d').date()
-        data_fim = datetime.strptime(data_fim, '%Y-%m-%d').date()
+        try:
+            data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d').date()
+            data_fim = datetime.strptime(data_fim, '%Y-%m-%d').date()
+        except ValueError:
+            return "Formato de data inválido", 400
 
         # Construir a consulta com filtros
         contas_query = db.session.query(ContaAPagar).filter(
@@ -276,14 +294,27 @@ def export_bills_by_period_pdf():
         if status_conta:
             contas_query = contas_query.filter_by(status_conta=status_conta)
 
-        contas = contas_query.all()
+        # Ordenar por status utilizando a ordem definida
+        status_case = db.case(
+            *[(ContaAPagar.status_conta == status, rank) for status, rank in status_order.items()],
+            else_=len(status_order) + 1
+        )
+
+        contas = contas_query.order_by(status_case).all()
 
         # Renderizar o template para o PDF
         rendered = render_template(
             'bills_by_period_pdf.html', contas=contas, STATUS_MAP=STATUS_MAP)
+        
+        # Gerar o PDF usando o HTML renderizado
+        pdf_options = {
+            'page-size': 'A4',
+            'orientation': 'Landscape',
+            'no-outline': None
+        }
 
         # Gerar o PDF usando o HTML renderizado
-        pdf = pdfkit.from_string(rendered, False, configuration=config)
+        pdf = pdfkit.from_string(rendered, False, configuration=config, options=pdf_options)
 
         # Retornar o PDF como arquivo para download
         return send_file(io.BytesIO(pdf), download_name='relatorio_contas_por_periodo.pdf', as_attachment=True)

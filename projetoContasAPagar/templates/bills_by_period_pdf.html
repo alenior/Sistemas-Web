@@ -1,48 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Contas por Período</title>
     <style>
-        /* Inclua aqui os estilos necessários para a formatação do PDF */
+        @page {
+            size: A4 landscape;
+            margin: 20mm;
+        }
+
+        /* Estilo do cabeçalho fixo */
+        .page-header {
+            position: fixed;
+            width: 100%;
+            top: 10mm;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        body {
+            margin-top: 30mm;
+            /* Espaço para o cabeçalho fixo */
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid #000;
             padding: 8px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
         }
     </style>
 </head>
+
 <body>
-    <h1>Relatório de Contas por Período</h1>
+    <!-- Cabeçalho fixo -->
+    <div class="page-header">
+        Relatório de Contas por Período
+    </div>
+
+    <!-- Conteúdo do relatório -->
     <table>
         <thead>
             <tr>
                 <th>Descrição</th>
                 <th>Valor</th>
+                <th>Multa</th>
+                <th>Juros</th>
+                <th>Valor Total</th>
                 <th>Data de Vencimento</th>
                 <th>Status</th>
-                <th>Credor</th>
             </tr>
         </thead>
         <tbody>
             {% for conta in contas %}
             <tr>
                 <td>{{ conta.descricao }}</td>
-                <td>R$ {{ "%.2f"|format(conta.valor) | replace('.', ',') }}</td>
+                <td>{{ conta.valor | format_currency }}</td>
+                <td>{{ conta.multa | format_currency }}</td>
+                <td>{{ conta.juros | format_currency }}</td>
+                <td>{{ conta.valor_total | format_currency }}</td>
                 <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
                 <td>{{ STATUS_MAP[conta.status_conta] }}</td>
-                <td>{{ conta.credor_relacionado.nome }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </body>
+
 </html>
