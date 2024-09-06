@@ -114,7 +114,7 @@ def get_bills():
     # Define a ordem dos status
     status_order = {
         'vencido': 1,
-        'a vencer': 2,
+        'a_vencer': 2,
         'pago': 3
     }
 
@@ -362,27 +362,26 @@ def add_conta():
         # Usar a data do formulário ou a data atual, se não fornecida
         data_vencimento = request.form.get('data_vencimento') or data_atual
 
-        status_conta = request.form.get('status_conta')
         credor_id = request.form.get('credor_id')
-
-        data_pagamento = request.form.get('data_pagamento') or data_atual
 
         # Cria uma nova conta a pagar com os dados fornecidos
         nova_conta = ContaAPagar(
             descricao=descricao,
             valor=valor,
             data_vencimento=data_vencimento,
-            status_conta=status_conta,
-            credor_id=credor_id,
-            data_pagamento=data_pagamento
+            credor_id=credor_id
         )
 
-        db.session.add(nova_conta)
-        db.session.commit()
-
-        flash('Conta adicionada com sucesso!', 'success')
-        # Redireciona para a página de listagem de contas
-        return redirect(url_for('get_bills'))
+        try:
+            db.session.add(nova_conta)
+            db.session.commit()
+            flash('Conta adicionada com sucesso!', 'success')
+            return redirect(url_for('listar_contas'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erro ao adicionar conta: {str(e)}', 'danger')
+            return redirect(url_for('get_bills'))
+        
     # Renderiza o template com a lista de credores e o mapa de status
     return render_template('add_conta.html', credores=credores, STATUS_MAP=STATUS_MAP, data_atual=data_atual)
 

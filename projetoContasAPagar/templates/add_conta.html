@@ -50,21 +50,10 @@
                 {% for credor in credores %}
                 <option value="{{ credor.id }}">{{ credor.nome }}</option>
                 {% endfor %}
-            </select>
-
-            <label for="status_conta">Status da Conta</label>
-            <select class="form-control" id="status_conta" name="status_conta">
-                <option value="a vencer" selected>A Vencer</option>
-                <option value="pago">Pago</option>
-                <option value="vencido">Vencido</option>
             </select><br><br>
 
             <label for="data_vencimento">Data de Vencimento: </label>
             <input type="date" class="form-control" id="data_vencimento" name="data_vencimento" value="{{ data_atual }}"
-                required>
-
-            <label for="data_pagamento">Data de Pagamento: </label>
-            <input type="date" class="form-control" id="data_pagamento" name="data_pagamento" value="{{ data_atual }}"
                 required><br><br>
 
             <button type="submit" class="botao_a_direita">Adicionar</button>

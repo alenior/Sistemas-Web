@@ -62,7 +62,14 @@
                     <td>{{ conta.descricao }}</td>
                     <td>{{ conta.credor_relacionado.nome }}</td>
                     <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
-                    <td>{{ conta.data_pagamento.strftime('%d/%m/%Y') if conta.data_pagamento else 'Não informada' }}
+                    <td>
+                        {% if conta.status_conta == 'a_vencer' %}
+                        A PAGAR!
+                        {% elif conta.data_pagamento %}
+                        {{ conta.data_pagamento.strftime('%d/%m/%Y') }}
+                        {% else %}
+                        Não informada
+                        {% endif %}
                     </td>
                     <td class="status {{ conta.status_conta|lower }}">{{ STATUS_MAP.get(conta.status_conta,
                         'Desconhecido') }}</td>

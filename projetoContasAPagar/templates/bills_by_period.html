@@ -52,7 +52,7 @@
                     {{ credor.nome }}
                 </option>
                 {% endfor %}
-            </select>
+            </select><br><br>
 
             <label for="status_conta">Status:</label>
             <select id="status_conta" name="status_conta">
@@ -65,7 +65,7 @@
                 {% endfor %}
             </select>
 
-            <button type="submit">Filtrar</button><br>
+            <button type="submit">Filtrar</button>
             <a href="{{ url_for('export_bills_by_period_pdf', data_inicio=data_inicio, data_fim=data_fim, credor_id=request.args.get('credor_id'), status_conta=request.args.get('status_conta')) }}"
                 class="btn">Exportar PDF</a>
         </form>

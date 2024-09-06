@@ -11,17 +11,33 @@
             margin: 20px;
         }
 
+        @page {
+            margin: 20mm;
+
+            @top-center {
+                content: "Relatório de Contas a Pagar";
+                font-size: 16px;
+                font-weight: bold;
+            }
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed; /* Define um layout fixo para a tabela */
+            table-layout: fixed;
+            /* Define um layout fixo para a tabela */
+            margin-top: 20mm;
+            /* Espaço para o cabeçalho */
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px;
-            word-wrap: break-word; /* Permite quebra de linha dentro das células */
-            font-size: 12px; /* Reduz o tamanho da fonte para melhor encaixe */
+            word-wrap: break-word;
+            /* Permite quebra de linha dentro das células */
+            font-size: 12px;
+            /* Reduz o tamanho da fonte para melhor encaixe */
             text-align: left;
         }
 
@@ -94,7 +110,8 @@
                 color: #000;
             }
 
-            th, td {
+            th,
+            td {
                 font-size: 12px;
             }
 
@@ -106,11 +123,15 @@
                 width: 30%;
             }
 
-            .col-valor, .col-multa, .col-juros, .col-status {
+            .col-valor,
+            .col-multa,
+            .col-juros,
+            .col-status {
                 width: 12%;
             }
 
-            .col-vencimento, .col-pagamento {
+            .col-vencimento,
+            .col-pagamento {
                 width: 11%;
             }
         }
@@ -118,7 +139,6 @@
 </head>
 
 <body>
-    <h1 class="centralizar">Relatório de Contas a Pagar</h1>
     <table>
         <thead>
             <tr>
@@ -142,9 +162,12 @@
                 <td>{{ conta.data_pagamento.strftime('%d/%m/%Y') if conta.data_pagamento else 'Não informada' }}</td>
                 <td>{{ STATUS_MAP[conta.status_conta] }}</td>
                 <td>R$ {{ '{:,.2f}'.format(conta.valor) }}</td>
-                <td>R$ {{ "{:,.2f}".format(conta.multa or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
-                <td>R$ {{ "{:,.2f}".format(conta.juros or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
-                <td class="negrito">R$ {{ "{:,.2f}".format((conta.valor or 0) + (conta.multa or 0) + (conta.juros or 0)).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+                <td>R$ {{ "{:,.2f}".format(conta.multa or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </td>
+                <td>R$ {{ "{:,.2f}".format(conta.juros or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </td>
+                <td class="negrito">R$ {{ "{:,.2f}".format((conta.valor or 0) + (conta.multa or 0) + (conta.juros or
+                    0)).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
             </tr>
             {% endfor %}
         </tbody>

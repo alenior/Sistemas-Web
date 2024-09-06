@@ -42,7 +42,7 @@
             <input type="text" id="descricao" name="descricao" value="{{ conta.descricao }}" required>
 
             <label for="valor">Valor:</label>
-            <input type="text" id="valor" name="valor" value="{{ conta.valor | replace('.', ',') }}"
+            <input type="text" id="valor" name="valor" value="{{ '{:.2f}'.format(conta.valor).replace('.', ',') }}"
                 required>
 
             <label for="data_vencimento">Data de Vencimento:</label>

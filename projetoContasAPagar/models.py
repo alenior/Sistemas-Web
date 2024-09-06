@@ -26,11 +26,10 @@ class ContaAPagar(db.Model):
     descricao = db.Column(db.String(200), nullable=False)
     valor = db.Column(db.Float, nullable=False)
     data_vencimento = db.Column(db.Date, nullable=False)  # A data de vencimento foi adicionada
-    status_conta = db.Column(db.String(20), nullable=False)
+    status_conta = db.Column(db.String(20), nullable=False, default='a_vencer')
     credor_id = db.Column(db.Integer, db.ForeignKey('credor.id'), nullable=False)
     credor_relacionado = db.relationship('Credor', back_populates='contas', lazy=True)
 
-    # Novo campo data_pagamento
     data_pagamento = db.Column(db.Date, nullable=True)
     
     multa = db.Column(db.Float, default=0.0)
