@@ -35,60 +35,62 @@
     </header>
     <main>
         <h1>Contas por Credor</h1>
+        <form method="GET" action="{{ url_for('contas_por_credor') }}"></form>
+        <label for="credor">Buscar por Credor:</label>
+        <select name="credor_id" id="credor">
+            <option value="">Todos</option>
+            {% for credor in credores %}
+            <option value="{{ credor.id }}" {% if credor_id_selecionado==credor.id %}selected{% endif %}>
+                {{ credor.nome }}
+            </option>
+            {% endfor %}
+        </select>
 
-        <form method="get" action="{{ url_for('contas_por_credor') }}">
-            <label for="credor_id">Selecione o Credor:</label>
-            <select id="credor_id" name="credor_id">
-                <option value="">Selecione um credor</option>
-                {% for credor in credores %}
-                <option value="{{ credor.id }}" {% if credor.id|string==request.args.get('credor_id') %}selected{% endif
-                    %}>
-                    {{ credor.nome }}
-                </option>
-                {% endfor %}
-            </select>
+        <label for="status">Filtrar por Status:</label>
+        <select name="status_conta" id="status">
+            <option value="">Todos</option>
+            {% for key, value in STATUS_MAP.items() %}
+            <option value="{{ key }}" {% if request.args.get('status_conta')==key %}selected{% endif %}>{{ value }}
+            </option>
+            {% endfor %}
+        </select>
 
-            <label for="status_conta">Status:</label>
-            <select id="status_conta" name="status_conta">
-                <option value="">Selecione um status</option>
-                {% for key, value in STATUS_MAP.items() %}
-                <option value="{{ key }}" {% if key==request.args.get('status_conta') %}selected{% endif %}>
-                    {{ value }}
-                </option>
-                {% endfor %}
-            </select>
-
-            <button type="submit">Filtrar</button>
-            <a href="{{ url_for('export_bills_by_creditor_pdf', credor_id=request.args.get('credor_id'), status_conta=request.args.get('status_conta')) }}"
-                class="btn">Exportar PDF</a>
+        <button type="submit">Filtrar</button>
+        <a href="{{ url_for('export_bills_by_creditor_pdf') }}" class="btn btn-primary">Exportar PDF</a>
         </form>
 
-        {% if contas %}
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Data de Vencimento</th>
-                    <th>Status</th>
                     <th>Credor</th>
+                    <th>Total de Contas</th>
+                    <th>Valor Total</th>
+                    <th>Valor Médio</th>
+                    <th>Total Vencidas</th>
+                    <th>Valor Vencidas</th>
+                    <th>A Vencer</th>
+                    <th>Valor A Vencer</th>
+                    <th>Total Pagas</th>
+                    <th>Valor Pagas</th>
                 </tr>
             </thead>
             <tbody>
                 {% for conta in contas %}
                 <tr>
-                    <td>{{ conta.id }}</td>
-                    <td>{{ conta.descricao }}</td>
-                    <td>R$ {{ '{:,.2f}'.format(conta.valor).replace('.', ',') }}</td>
-                    <td>{{ conta.data_vencimento.strftime('%d/%m/%Y') }}</td>
-                    <td>{{ STATUS_MAP[conta.status_conta] }}</td>
-                    <td>{{ conta.credor_relacionado.nome }}</td>
+                    <td>{{ conta.credor }}</td>
+                    <td>{{ conta.total_contas }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_total)|replace(".", ",") }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_medio)|replace(".", ",") }}</td>
+                    <td>{{ conta.total_vencidas }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_vencidas)|replace(".", ",") }}</td>
+                    <td>{{ conta.total_a_vencer }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_a_vencer)|replace(".", ",") }}</td>
+                    <td>{{ conta.total_pagas }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_pagas)|replace(".", ",") }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        {% endif %}
 
     </main>
     <footer>

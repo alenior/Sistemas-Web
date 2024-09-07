@@ -4,7 +4,7 @@ from datetime import datetime, date, timedelta
 from weasyprint import HTML, CSS
 from io import BytesIO
 from flask_weasyprint import HTML, render_pdf
-from sqlalchemy import case
+from sqlalchemy import case, func
 
 import pdfkit
 import io
@@ -326,24 +326,55 @@ def export_bills_by_period_pdf():
 @app.route('/contas_por_credor', methods=['GET'])
 def contas_por_credor():
     credores = Credor.query.all()
-    contas_query = db.session.query(ContaAPagar)
 
     # Adicionar filtros se existirem
     credor_id = request.args.get('credor_id')
     status_conta = request.args.get('status_conta')
 
+    # Inicializa a consulta
+    contas_query = db.session.query(
+        Credor.nome.label('credor'),
+        func.count(ContaAPagar.id).label('total_contas'),
+        func.sum(ContaAPagar.valor_total).label('valor_total'),
+        func.avg(ContaAPagar.valor_total).label('valor_medio'),
+        func.sum(case([(ContaAPagar.status_conta == 'vencido', ContaAPagar.valor_total)], else_=0)).label('valor_vencidas'),
+        func.sum(case([(ContaAPagar.status_conta == 'a_vencer', ContaAPagar.valor_total)], else_=0)).label('valor_a_vencer'),
+        func.sum(case([(ContaAPagar.status_conta == 'pago', ContaAPagar.valor_total)], else_=0)).label('valor_pagas')
+    ).join(Credor, ContaAPagar.credor_id == Credor.id)
+
+    # Aplica os filtros se existirem
     if credor_id:
-        contas_query = contas_query.filter_by(credor_id=credor_id)
+        contas_query = contas_query.filter(ContaAPagar.credor_id == credor_id)
     if status_conta:
-        contas_query = contas_query.filter_by(status_conta=status_conta)
+        contas_query = contas_query.filter(ContaAPagar.status_conta == status_conta)
 
-    contas = contas_query.all()
+    # Agrupar os resultados pelo nome do credor
+    contas_query = contas_query.group_by(Credor.nome)
 
-    return render_template('contas_por_credor.html', contas=contas, credores=credores, STATUS_MAP=STATUS_MAP)
+    # Ordenar pelo valor total em ordem decrescente
+    contas = contas_query.order_by(func.sum(ContaAPagar.valor_total).desc()).all()
+
+    credor_id_selecionado = request.args.get('credor_id')
+    return render_template('contas_por_credor.html', contas=contas, credores=credores, STATUS_MAP=STATUS_MAP, credor_id_selecionado=int(credor_id_selecionado) if credor_id_selecionado else None)
 
 
 @app.route('/exportar_contas_por_credor_pdf', methods=['GET'])
 def export_bills_by_creditor_pdf():
+    # Consulta para agrupar as contas por credor e calcular as métricas
+    contas_query = db.session.query(
+        Credor.nome.label('credor'),
+        func.count(ContaAPagar.id).label('total_contas'),
+        func.sum(ContaAPagar.valor).label('valor_total'),
+        func.avg(ContaAPagar.valor).label('valor_medio'),
+        func.count(case([(ContaAPagar.status_conta == 'vencido', 1)])).label('total_vencidas'),
+        func.sum(case([(ContaAPagar.status_conta == 'vencido', ContaAPagar.valor)])).label('valor_vencidas'),
+        func.count(case([(ContaAPagar.status_conta == 'a_vencer', 1)])).label('total_a_vencer'),
+        func.sum(case([(ContaAPagar.status_conta == 'a_vencer', ContaAPagar.valor)])).label('valor_a_vencer'),
+        func.count(case([(ContaAPagar.status_conta == 'pago', 1)])).label('total_pagas'),
+        func.sum(case([(ContaAPagar.status_conta == 'pago', ContaAPagar.valor)])).label('valor_pagas')
+    ).join(Credor).group_by(Credor.nome)
+
+    # Aplica os filtros se existirem
     credor_id = request.args.get('credor_id')
     status_conta = request.args.get('status_conta')
 
@@ -358,8 +389,8 @@ def export_bills_by_creditor_pdf():
         contas_query = contas_query.filter(
             ContaAPagar.status_conta == status_conta)
 
-    # Executa a consulta
-    contas = contas_query.all()
+    # Ordenar pelo valor total em ordem decrescente
+    contas = contas_query.order_by(func.sum(ContaAPagar.valor).desc()).all()
 
     # Renderiza o template para o PDF
     rendered = render_template(
