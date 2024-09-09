@@ -6,9 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Contas por Credor</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            background-color: #f2f2f2;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .content {
+            margin-top: 60px;
+            /* Espaço suficiente para o cabeçalho fixo */
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
+            page-break-inside: auto;
+            /* Quebra de página automática para tabelas */
         }
 
         table,
@@ -20,50 +47,68 @@
         th,
         td {
             padding: 8px;
+            text-align: center;
+            /* Centraliza todas as colunas */
+        }
+
+        th:first-child,
+        td:first-child {
             text-align: left;
+            /* Mantém a primeira coluna (credor) alinhada à esquerda */
         }
 
         th {
             background-color: #f2f2f2;
         }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+        }
     </style>
 </head>
 
-<body></body>
-<h2>Relatório de Contas por Credor</h2>
+<body>
 
-<table>
-    <thead>
-        <tr>
-            <th>Credor</th>
-            <th>Total de Contas</th>
-            <th>Valor Total</th>
-            <th>Valor Médio</th>
-            <th>Total Vencidas</th>
-            <th>Valor Vencidas</th>
-            <th>A Vencer</th>
-            <th>Valor A Vencer</th>
-            <th>Total Pagas</th>
-            <th>Valor Pagas</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for conta in contas %}
-        <tr>
-            <td>{{ conta.credor }}</td>
-            <td>{{ conta.total_contas }}</td>
-            <td>{{ conta.valor_total | round(2) }}</td>
-            <td>{{ conta.valor_medio | round(2) }}</td>
-            <td>{{ conta.total_vencidas }}</td>
-            <td>{{ conta.valor_vencidas | round(2) }}</td>
-            <td>{{ conta.total_a_vencer }}</td>
-            <td>{{ conta.valor_a_vencer | round(2) }}</td>
-            <td>{{ conta.total_pagas }}</td>
-            <td>{{ conta.valor_pagas | round(2) }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="header">
+        Relatório de Contas por Credor
+    </div>
+
+    <div class="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Credor</th>
+                    <th>Total de Contas</th>
+                    <th>Valor Total</th>
+                    <th>Valor Médio</th>
+                    <th>Total Vencidas</th>
+                    <th>Valor Vencidas</th>
+                    <th>A Vencer</th>
+                    <th>Valor A Vencer</th>
+                    <th>Total Pagas</th>
+                    <th>Valor Pagas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conta in contas %}
+                <tr>
+                    <td>{{ conta.credor }}</td>
+                    <td>{{ conta.total_contas }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_total)|replace(".", ",") }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_medio)|replace(".", ",") }}</td>
+                    <td>{{ conta.total_vencidas }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_vencidas)|replace(".", ",") }}</td>
+                    <td>{{ conta.total_a_vencer }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_a_vencer)|replace(".", ",") }}</td>
+                    <td>{{ conta.total_pagas }}</td>
+                    <td>R$ {{ "%.2f"|format(conta.valor_pagas)|replace(".", ",") }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
 </body>
 
 </html>
