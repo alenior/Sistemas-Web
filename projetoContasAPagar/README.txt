@@ -58,11 +58,9 @@
 
 ### Requisitos Não-Funcionais
 
-1. **Segurança**: Autenticação e autorização para acesso ao sistema.
-2. **Usabilidade**: Interface amigável e intuitiva.
-3. **Performance**: Resposta rápida às consultas e operações.
-4. **Escalabilidade**: Capacidade de lidar com aumento no número de usuários e dados.
-5. **Manutenibilidade**: Código bem documentado e organizado para facilitar manutenção e melhorias.
+1. **Usabilidade**: Interface amigável e intuitiva.
+2. **Performance**: Resposta rápida às consultas e operações.
+3. **Escalabilidade**: Capacidade de lidar com aumento no número de usuários e dados.
 
 ### Tecnologias Utilizadas
 
@@ -70,7 +68,6 @@
    - **HTML**: Estrutura das páginas web.
    - **CSS**: Estilização das páginas web.
    - **JavaScript**: Interatividade e dinamismo no frontend.
-   - **React.js**: Biblioteca JavaScript para construção de interfaces de usuário.
 
 2. **Backend**
    - **Python**: Linguagem de programação para lógica de negócio.
@@ -79,13 +76,7 @@
 3. **Banco de Dados**
    - **MySQL**: Sistema de gerenciamento de banco de dados relacional.
 
-4. **API**
-   - **RESTful API**: Interface de comunicação para a integração com outros sistemas.
-
-5. **Servidor**
-   - **Nginx**: Servidor web para servir a aplicação.
-
-6. **Controle de Versão**
+4. **Controle de Versão**
    - **Git**: Controle de versão para gerenciamento do código-fonte.
 
 ---
@@ -188,17 +179,4 @@ if __name__ == '__main__':
 ## Conclusão
 
 Este sistema web fornece uma solução eficiente e escalável para o controle de contas a pagar de uma empresa, garantindo segurança, usabilidade e performance. As tecnologias escolhidas permitem uma arquitetura em múltiplas camadas, facilitando a manutenção e futura expansão do sistema.
-
-LEMBRETES:
-
-- MENSAGENS FLASH.
-- RETORNOS DE TRATAMENTOS DE ERROS PERSONALIZADOS.
-- ROTINAS DE LOGIN E LOGOUT.
-- REGISTROS DE LOG.
-- DISPONIBILIZAR ON-LINE.
-
-* NOTAS DO PROFESSOR:
-- INFORMAR DATA DE PAGAMENTO (SE PAGO) E MULTA E JUROS (SE PAGO VENCIDO).
-- INCLUIR RELATÓRIOS COM ESSAS INFORMAÇÕES.
-- CRIAR API PARA OFERECER ESSE SERVIÇO.
 
