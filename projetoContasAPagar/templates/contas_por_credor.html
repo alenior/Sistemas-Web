@@ -35,31 +35,16 @@
     </header>
     <main>
         <h1>Contas por Credor</h1>
-        <form method="GET" action="{{ url_for('contas_por_credor') }}"></form>
-        <label for="credor">Buscar por Credor:</label>
-        <select name="credor_id" id="credor">
-            <option value="">Todos</option>
-            {% for credor in credores %}
-            <option value="{{ credor.id }}" {% if credor_id_selecionado==credor.id %}selected{% endif %}>
-                {{ credor.nome }}
-            </option>
-            {% endfor %}
-        </select>
 
-        <label for="status">Filtrar por Status:</label>
-        <select name="status_conta" id="status">
-            <option value="">Todos</option>
-            {% for key, value in STATUS_MAP.items() %}
-            <option value="{{ key }}" {% if request.args.get('status_conta')==key %}selected{% endif %}>{{ value }}
-            </option>
-            {% endfor %}
-        </select>
+        <!-- Barra de busca por credor -->
+        <label for="searchCredor">Buscar por Credor:</label>
+        <input type="text" id="searchCredor" placeholder="Digite o nome do credor..." onkeyup="buscarCredor()">
 
-        <button type="submit">Filtrar</button>
+        <!-- Botão para exportar PDF -->
         <a href="{{ url_for('export_bills_by_creditor_pdf') }}" class="btn btn-primary">Exportar PDF</a>
-        </form>
 
-        <table>
+        <!-- Tabela de contas -->
+        <table id="tabelaContas">
             <thead>
                 <tr>
                     <th>Credor</th>
@@ -91,8 +76,8 @@
                 {% endfor %}
             </tbody>
         </table>
-
     </main>
+
     <footer>
         <img src="{{url_for('static', filename='images/telematica.png')}}" alt="Telemática" class="icone_a_esquerda">
         <p>Desenvolvido por Alencar Júnior</p>
@@ -104,6 +89,29 @@
             <img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp">
         </a>
     </div>
+
+    <!-- Script para busca dinâmica por credor -->
+    <script>
+        function buscarCredor() {
+            const input = document.getElementById('searchCredor');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('tabelaContas');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName('td')[0];
+                if (td) {
+                    const txtValue = td.textContent || td.innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = '';
+                    } else {
+                        tr[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+    </script>
+
 </body>
 
 </html>
